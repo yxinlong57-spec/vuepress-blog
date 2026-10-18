@@ -69,8 +69,8 @@ jobs:
       # 未配置服务器 secrets 时自动跳过，不影响 Pages 部署
       - name: 通过 SSH 同步到服务器
         if: env.SERVER_HOST != ''
-        uses: easingthemes/ssh-deploy@v5
-        env:
+        uses: easingthemes/ssh-deploy@v6
+        with:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           ARGS: -avz --delete
           SOURCE: docs/.vuepress/dist/
