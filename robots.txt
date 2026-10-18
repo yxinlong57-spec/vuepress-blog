@@ -1,0 +1,4 @@
+User-agent:*
+Disallow:
+
+Sitemap: https://yxinlong57-spec.github.io/vuepress-blog/sitemap.xml
