@@ -2,8 +2,8 @@
 home: true
 icon: house
 title: 首页
-heroText: Loong 的技术栈
-tagline: 沉淀、分享、成长 —— 一个 Java 后端学习者的知识库
+heroText: Loong 龙栈 LoongStack
+tagline: 包含：Java 基础、面经手册、并发编程、JVM、Spring 全家桶、MySQL、Redis、消息队列、分布式、Java 实战项目训练…
 heroFullScreen: false
 actions:
   - text: 开始阅读 →
@@ -13,43 +13,62 @@ actions:
   - text: 面经手册
     icon: lightbulb
     link: /interview/
+  - text: 学习路线 👣
+    icon: signpost
+    link: /roadmap.html
   - text: GitHub
     link: https://github.com/yxinlong57-spec
 footer: Copyright © 2022-2026 Loong
 ---
 
-## ⚡ 沉淀 · 分享 · 成长
+## 沉淀
 
-> **沉淀**：日拱一卒，功不唐捐。
->
-> **分享**：赠人玫瑰，手有余香。
->
-> **成长**：保持热爱，奔赴山海。
+> 日拱一卒，功不唐捐。
 
-## 🧑‍💻 我是 Loong
+## 分享
 
-- 🐶 Java 后端学习者，主攻 Spring、MySQL、Redis、并发编程与 JVM
-- 👨‍💻 正在把「学过」变成「学会」：源码、原理、实践，一个都不放过
-- 🚌 作品：[本站源码 vuepress-blog](https://github.com/yxinlong57-spec/vuepress-blog) —— VuePress + theme-hope，CI 自动化部署
-- 📝 这里记录我的面试准备、技术笔记与项目复盘
-- 📮 联系我：[GitHub](https://github.com/yxinlong57-spec) · 1393260005@qq.com
+> 赠人玫瑰，手有余香。
 
-## 🚀 专栏导航
+## 成长
 
-- [面经手册](/interview/) —— 面试八股 + 底层原理，按主题系统梳理
-- [Spring 实战](/spring/) —— 核心原理与整合案例
-- [后端进阶](/backend/) —— Redis、消息队列与分布式
-- [项目实战](/projects/) —— 从 0 到 1 的项目复盘
-- [技术随笔](/daily/) —— 踩坑记录与工具推荐
+> 保持热爱，奔赴山海。
 
-## 📝 面试必备
+### 我是 Loong
 
-- [HashMap 源码解析：从 put 到 resize](/interview/hashmap-source.html)
-- [Java 线程池核心参数与执行流程](/interview/thread-pool.html)
-- [Spring Boot 自动装配原理](/spring/auto-configuration.html)
-- [Redis 常用数据结构与应用场景](/backend/redis-data-structures.html)
+- 🐶 Java 后端学习者，主攻 Spring 全家桶、MySQL、Redis、并发编程与 JVM，正在向分布式与中间件进阶。
 
-## 📮 联系我
+- 👨‍💻 成长：把「学过」变成「学会」——源码、原理、实践，一个都不放过，踩过的坑都变成路标。
 
-欢迎通过 [GitHub](https://github.com/yxinlong57-spec) 或邮箱（1393260005@qq.com）与我交流。
-沉淀、分享、成长，让自己和他人都能有所收获！
+- 🚌 作品：[`LoongStack 本站`](https://github.com/yxinlong57-spec/vuepress-blog) | [更多项目](https://github.com/yxinlong57-spec?tab=repositories)
+
+- 🌱 干货：[面经手册](/interview/) —— 八股不背答案，从原理讲到话术。
+
+- 📝 博客：[LoongStack](/) —— 沉淀、分享、成长。
+
+- 💌 联系：[GitHub](https://github.com/yxinlong57-spec) · 1393260005@qq.com
+
+### 我的项目
+
+- 实战项目(1)
+
+    - [LoongStack 个人博客](/projects/vuepress-blog.html) - `VuePress + theme-hope，GitHub Actions 全自动构建部署。`
+
+- 学习作品(0)
+
+    - 整理中，敬请期待…
+
+- 组件与小工具(0)
+
+    - 整理中，敬请期待…
+
+### 面试必备
+
+- [面经手册](/interview/) —— 面试八股 + 底层原理，按主题系统梳理：集合源码、并发编程、JVM、MySQL、Redis、计算机网络。
+
+- [学习路线](/roadmap.html) —— 从 Java 基础到分布式，一条主线走到底，每个阶段配套专栏文章。
+
+- [HashMap 源码解析](/interview/hashmap-source.html) / [线程池核心参数](/interview/thread-pool.html) —— 先从最高频的两篇开始。
+
+### 联系我 - 欢迎交流
+
+沉淀、分享、成长，让自己和他人都能有所收获！欢迎通过 [GitHub](https://github.com/yxinlong57-spec) 或邮箱（1393260005@qq.com）与我交流，一起学习，共同成长。
