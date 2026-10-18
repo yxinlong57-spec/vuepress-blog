@@ -6,11 +6,12 @@ export default navbar([
     text: "专栏",
     icon: "book",
     children: [
+      { text: "Java 基础", icon: "seedling", link: "/java/" },
       { text: "面经手册", icon: "lightbulb", link: "/interview/" },
       { text: "Spring 实战", icon: "leaf", link: "/spring/" },
       { text: "后端进阶", icon: "server", link: "/backend/" },
+      { text: "Agent 探索", icon: "robot", link: "/agent/" },
       { text: "项目实战", icon: "rocket", link: "/projects/" },
-      { text: "技术随笔", icon: "pen-nib", link: "/daily/" },
     ],
   },
   { text: "阅读指南", icon: "flag", link: "/guide/" },

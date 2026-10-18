@@ -12,7 +12,7 @@ export default defineUserConfig({
   lang: "zh-CN",
   title: "Loong 龙栈 LoongStack",
   description:
-    "Loong 龙栈：包含 Java 基础、面经手册、并发编程、JVM、Spring 全家桶、MySQL、Redis、消息队列、分布式、Java 实战项目训练…",
+    "Loong 龙栈：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
 
   theme,
 });

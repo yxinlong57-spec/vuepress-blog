@@ -5,23 +5,28 @@ title: 关于我
 
 # 关于我
 
-你好，我是 **Loong** —— 一个 Java 后端学习者，这里是我在「**Loong 龙栈 LoongStack**」的知识沉淀。
+你好，我是 **Loong** —— 一名计算机专业本科生，这里是我在「**Loong 龙栈 LoongStack**」的知识沉淀。
+
+> Java 后端打底，Agent 应用探路，公开记录一个计算机学生的技术成长路线。
 
 ## 🧭 我在做什么
 
-主攻 Java 后端方向：Spring 全家桶、MySQL、Redis、并发编程、JVM，正在逐步深入分布式与中间件。
+主线 Java 后端：集合、并发、JVM、MySQL、Redis、Spring，把「学过」变成「学会」，源码、原理、实践一个都不放过。
 
-比起「会用」，我更想把「为什么」搞明白，所以这里的内容大多会从源码和原理讲起，再落到实践。
+第二条线 Agent / LLM 应用开发：MCP、A2A、Agent 循环与记忆、Spring AI、RAG，用 Java 玩家的视角探索大模型应用。
+
+比起「会用」，我更想把「为什么」搞明白，所以这里的内容大多从实测和原理讲起，实验代码全部可复现。
 
 ## 📖 关于本站
 
 本站「Loong 龙栈 LoongStack」是我的知识库，按专栏组织：
 
-- **[面经手册](/interview/)**：面试八股 + 底层原理，按主题系统梳理
+- **[Java 基础](/java/)**：语言层的每个「为什么」
+- **[面经手册](/interview/)**：面试八股 + 底层原理 + 简历求职
 - **[Spring 实战](/spring/)**：核心原理与整合案例
-- **[后端进阶](/backend/)**：Redis、消息队列与分布式
+- **[后端进阶](/backend/)**：MySQL、Redis、存储与 IO
+- **[Agent 探索](/agent/)**：Java 玩家的大模型应用之路
 - **[项目实战](/projects/)**：从 0 到 1 的项目复盘
-- **[技术随笔](/daily/)**：踩坑记录与工具推荐
 
 本站基于 VuePress 2 + vuepress-theme-hope 搭建，通过 GitHub Actions 自动构建部署，源码开源于 [GitHub](https://github.com/yxinlong57-spec/vuepress-blog)，搭建过程记录在[这篇](/projects/vuepress-blog.html)。
 

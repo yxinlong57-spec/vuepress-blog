@@ -25,7 +25,7 @@ export default hopeTheme({
 
   // 博客相关
   blog: {
-    description: "一个 Java 后端学习者",
+    description: "Java 后端打底，Agent 应用探路，公开记录一个计算机学生的技术成长路线。",
     intro: "/intro.html",
     medias: {
       GitHub: "https://github.com/yxinlong57-spec",
