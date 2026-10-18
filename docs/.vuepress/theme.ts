@@ -20,12 +20,12 @@ export default hopeTheme({
   sidebar,
 
   // 页脚
-  footer: "默认页脚",
+  footer: "Copyright © 2022-2026 Loong",
   displayFooter: true,
 
   // 博客相关
   blog: {
-    description: "一个开发者",
+    description: "一个 Java 后端学习者",
     intro: "/intro.html",
     medias: {
       GitHub: "https://github.com/yxinlong57-spec",

@@ -10,8 +10,9 @@ export default defineUserConfig({
   base: process.env.BASE_PATH || "/",
 
   lang: "zh-CN",
-  title: "我的博客",
-  description: "基于 VuePress 的个人博客",
+  title: "Loong 的技术栈",
+  description:
+    "一个 Java 后端学习者的知识沉淀：面经手册、Spring 实战、后端进阶、项目实战",
 
   theme,
 });
