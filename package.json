@@ -1,0 +1,21 @@
+{
+  "name": "vuepress-blog",
+  "description": "个人博客搭建",
+  "version": "2.0.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs",
+    "docs:clean-dev": "vuepress dev docs --clean-cache",
+    "docs:update-package": "npx vp-update"
+  },
+  "devDependencies": {
+    "@vuepress/bundler-vite": "2.0.0-rc.31",
+    "@vuepress/plugin-search": "^2.0.0-rc.134",
+    "sass-embedded": "^1.104.0",
+    "vue": "^3.5.42",
+    "vuepress": "2.0.0-rc.31",
+    "vuepress-theme-hope": "2.0.0-rc.109"
+  }
+}

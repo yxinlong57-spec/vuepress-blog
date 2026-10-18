@@ -1,0 +1,79 @@
+name: 部署文档
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy-gh-pages:
+    name: 部署到 GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建文档（子路径 base）
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+          # 仓库名不是 <user>.github.io，Pages 必须用子路径
+          BASE_PATH: /vuepress-blog/
+        run: |-
+          npm run docs:build
+          touch docs/.vuepress/dist/.nojekyll
+
+      - name: 部署到 GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs/.vuepress/dist
+
+  deploy-server:
+    name: 部署到自己的服务器
+    runs-on: ubuntu-latest
+    env:
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建文档（根路径 base）
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+        run: npm run docs:build
+
+      # 未配置服务器 secrets 时自动跳过，不影响 Pages 部署
+      - name: 通过 SSH 同步到服务器
+        if: env.SERVER_HOST != ''
+        uses: easingthemes/ssh-deploy@v5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          ARGS: -avz --delete
+          SOURCE: docs/.vuepress/dist/
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          TARGET: ${{ secrets.SERVER_TARGET }}
