@@ -18,5 +18,6 @@ export default navbar([
   { text: "学习路线", icon: "signpost", link: "/roadmap.html" },
   { text: "时间线", icon: "clock-rotate-left", link: "/timeline/" },
   { text: "关于我", icon: "circle-info", link: "/intro.html" },
+  { text: "CSDN", link: "https://blog.csdn.net/lqbzlll" },
   { text: "GitHub", link: "https://github.com/yxinlong57-spec" },
 ]);

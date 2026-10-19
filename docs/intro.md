@@ -36,6 +36,7 @@ title: 关于我
 
 ## 📮 联系我
 
+- CSDN：[blog.csdn.net/lqbzlll](https://blog.csdn.net/lqbzlll)（文章日更主阵地，优先来这里交流）
 - GitHub：[yxinlong57-spec](https://github.com/yxinlong57-spec)
 - 邮箱：1393260005@qq.com
 

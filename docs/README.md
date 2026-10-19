@@ -16,6 +16,9 @@ actions:
   - text: 学习路线 👣
     icon: signpost
     link: /roadmap.html
+  - text: CSDN 主页
+    icon: pen-to-square
+    link: https://blog.csdn.net/lqbzlll
   - text: GitHub
     link: https://github.com/yxinlong57-spec
 footer: Copyright © 2022-2026 Loong
@@ -43,9 +46,9 @@ footer: Copyright © 2022-2026 Loong
 
 - 🌱 干货：[面经手册](/interview/) —— 八股不背答案，从原理讲到话术；[Agent 探索](/agent/) —— MCP、A2A、RAG、Spring AI，第二条主线同步推进。
 
-- 📝 博客：[LoongStack](/) —— 沉淀、分享、成长。
+- 📝 博客：[CSDN @lqbzlll](https://blog.csdn.net/lqbzlll)（日更主阵地）| [LoongStack](/)（体系化归档，沉淀、分享、成长）。
 
-- 💌 联系：[GitHub](https://github.com/yxinlong57-spec) · 1393260005@qq.com
+- 💌 联系：[CSDN](https://blog.csdn.net/lqbzlll) · [GitHub](https://github.com/yxinlong57-spec) · 1393260005@qq.com
 
 ### 专栏导航
 
@@ -71,4 +74,4 @@ footer: Copyright © 2022-2026 Loong
 
 ### 联系我 - 欢迎交流
 
-沉淀、分享、成长，让自己和他人都能有所收获！欢迎通过 [GitHub](https://github.com/yxinlong57-spec) 或邮箱（1393260005@qq.com）与我交流，一起学习，共同成长。
+沉淀、分享、成长，让自己和他人都能有所收获！欢迎通过 [CSDN](https://blog.csdn.net/lqbzlll)（日更主阵地，优先交流）、[GitHub](https://github.com/yxinlong57-spec) 或邮箱（1393260005@qq.com）与我交流，一起学习，共同成长。

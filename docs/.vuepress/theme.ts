@@ -39,6 +39,10 @@ export default hopeTheme({
     description: "Java 后端打底，Agent 应用探路，公开记录一个计算机学生的技术成长路线。",
     intro: "/intro.html",
     medias: {
+      CSDN: {
+        icon: "https://g.csdnimg.cn/static/logo/favicon32.ico",
+        link: "https://blog.csdn.net/lqbzlll",
+      },
       GitHub: "https://github.com/yxinlong57-spec",
     },
   },
