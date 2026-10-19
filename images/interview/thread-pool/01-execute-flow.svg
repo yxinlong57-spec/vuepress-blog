@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 620" font-family='"PingFang SC","Microsoft YaHei",sans-serif'>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#57606a"/>
+    </marker>
+  </defs>
+
+  <!-- 卡片底 -->
+  <rect x="8" y="8" width="744" height="604" rx="12" fill="#f8f9fa" stroke="#d0d7de"/>
+
+  <!-- 起点 -->
+  <rect x="150" y="24" width="180" height="44" rx="8" fill="#ffffff" stroke="#57606a" stroke-width="1.5"/>
+  <text x="240" y="43" text-anchor="middle" font-size="14" font-weight="600" fill="#24292f">提交任务</text>
+  <text x="240" y="60" text-anchor="middle" font-size="12" fill="#57606a">execute(command)</text>
+
+  <line x1="240" y1="68" x2="240" y2="88" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 判断 1 -->
+  <polygon points="240,90 355,135 240,180 125,135" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+  <text x="240" y="140" text-anchor="middle" font-size="13" fill="#24292f">线程数 &lt; corePoolSize？</text>
+
+  <line x1="355" y1="135" x2="453" y2="135" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="400" y="125" text-anchor="middle" font-size="13" fill="#24292f">是</text>
+  <rect x="455" y="113" width="230" height="44" rx="8" fill="#ffffff" stroke="#57606a" stroke-width="1.5"/>
+  <text x="570" y="140" text-anchor="middle" font-size="14" fill="#24292f">创建核心线程执行任务</text>
+
+  <line x1="240" y1="180" x2="240" y2="208" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="254" y="200" font-size="13" fill="#24292f">否</text>
+
+  <!-- 判断 2 -->
+  <polygon points="240,210 355,255 240,300 125,255" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+  <text x="240" y="260" text-anchor="middle" font-size="13" fill="#24292f">workQueue.offer 成功？</text>
+
+  <line x1="355" y1="255" x2="453" y2="255" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="400" y="245" text-anchor="middle" font-size="13" fill="#24292f">是</text>
+  <rect x="455" y="233" width="230" height="44" rx="8" fill="#ffffff" stroke="#57606a" stroke-width="1.5"/>
+  <text x="570" y="260" text-anchor="middle" font-size="14" fill="#24292f">任务入队，等待空闲线程</text>
+
+  <line x1="240" y1="300" x2="240" y2="328" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="254" y="320" font-size="13" fill="#24292f">否</text>
+
+  <!-- 判断 3 -->
+  <polygon points="240,330 360,375 240,420 120,375" fill="#ddf4ff" stroke="#0969da" stroke-width="1.5"/>
+  <text x="240" y="380" text-anchor="middle" font-size="13" fill="#24292f">线程数 &lt; maximumPoolSize？</text>
+
+  <line x1="360" y1="375" x2="453" y2="375" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="400" y="365" text-anchor="middle" font-size="13" fill="#24292f">是</text>
+  <rect x="455" y="353" width="230" height="44" rx="8" fill="#ffffff" stroke="#57606a" stroke-width="1.5"/>
+  <text x="570" y="380" text-anchor="middle" font-size="14" fill="#24292f">创建非核心线程执行任务</text>
+
+  <line x1="240" y1="420" x2="240" y2="443" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="254" y="436" font-size="13" fill="#24292f">否</text>
+
+  <!-- 拒绝 -->
+  <rect x="150" y="445" width="180" height="50" rx="8" fill="#ffebe9" stroke="#cf222e" stroke-width="1.5"/>
+  <text x="240" y="466" text-anchor="middle" font-size="14" font-weight="600" fill="#24292f">触发拒绝策略</text>
+  <text x="240" y="484" text-anchor="middle" font-size="12" fill="#57606a">RejectedExecutionHandler</text>
+
+  <line x1="240" y1="495" x2="240" y2="513" stroke="#57606a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 四种策略 -->
+  <rect x="60" y="515" width="600" height="80" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <line x1="210" y1="527" x2="210" y2="583" stroke="#d0d7de"/>
+  <line x1="360" y1="527" x2="360" y2="583" stroke="#d0d7de"/>
+  <line x1="510" y1="527" x2="510" y2="583" stroke="#d0d7de"/>
+
+  <text x="135" y="548" text-anchor="middle" font-size="12" font-weight="600" fill="#24292f">AbortPolicy（默认）</text>
+  <text x="135" y="572" text-anchor="middle" font-size="12" fill="#57606a">抛出异常</text>
+
+  <text x="285" y="548" text-anchor="middle" font-size="12" font-weight="600" fill="#24292f">CallerRunsPolicy</text>
+  <text x="285" y="572" text-anchor="middle" font-size="12" fill="#57606a">调用方线程自己执行</text>
+
+  <text x="435" y="548" text-anchor="middle" font-size="12" font-weight="600" fill="#24292f">DiscardPolicy</text>
+  <text x="435" y="572" text-anchor="middle" font-size="12" fill="#57606a">静默丢弃</text>
+
+  <text x="585" y="548" text-anchor="middle" font-size="12" font-weight="600" fill="#24292f">DiscardOldestPolicy</text>
+  <text x="585" y="572" text-anchor="middle" font-size="12" fill="#57606a">丢队首，重试当前任务</text>
+</svg>

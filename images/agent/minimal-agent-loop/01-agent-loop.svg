@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#57606a"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0969da"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2da44e"/>
+    </marker>
+  </defs>
+
+  <!-- 背景卡片 -->
+  <rect x="4" y="4" width="752" height="472" rx="16" fill="#f8f9fa" stroke="#d0d7de" stroke-width="1"/>
+
+  <!-- 节点：用户任务 -->
+  <rect x="60" y="60" width="150" height="46" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="135" y="79" text-anchor="middle" font-size="15" font-weight="600" fill="#24292f">用户任务</text>
+  <text x="135" y="96" text-anchor="middle" font-size="13" fill="#57606a">USER: task</text>
+
+  <!-- 节点：LLM 决策 -->
+  <rect x="300" y="60" width="170" height="46" rx="10" fill="#ddf4ff" stroke="#54aeff" stroke-width="1.5"/>
+  <text x="385" y="79" text-anchor="middle" font-size="15" font-weight="600" fill="#24292f">LLM 决策</text>
+  <text x="385" y="96" text-anchor="middle" font-size="13" fill="#57606a">llm.chat(history)</text>
+
+  <!-- 节点：判断菱形 -->
+  <polygon points="385,165 480,220 385,275 290,220" fill="#fff8c5" stroke="#d4a72c" stroke-width="1.5"/>
+  <text x="385" y="216" text-anchor="middle" font-size="14" font-weight="600" fill="#24292f">输出是 FINAL</text>
+  <text x="385" y="234" text-anchor="middle" font-size="14" font-weight="600" fill="#24292f">还是 TOOL?</text>
+
+  <!-- 节点：执行工具 -->
+  <rect x="120" y="197" width="150" height="46" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="195" y="216" text-anchor="middle" font-size="15" font-weight="600" fill="#24292f">执行工具</text>
+  <text x="195" y="233" text-anchor="middle" font-size="13" fill="#57606a">tool.call(args)</text>
+
+  <!-- 节点：观察写回 -->
+  <rect x="40" y="320" width="200" height="46" rx="10" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="140" y="339" text-anchor="middle" font-size="15" font-weight="600" fill="#24292f">观察写回</text>
+  <text x="140" y="356" text-anchor="middle" font-size="13" fill="#57606a">OBSERVATION → history</text>
+
+  <!-- 节点：最终回答 -->
+  <rect x="560" y="197" width="160" height="46" rx="10" fill="#dafbe1" stroke="#2da44e" stroke-width="1.5"/>
+  <text x="640" y="216" text-anchor="middle" font-size="15" font-weight="600" fill="#24292f">输出最终回答</text>
+  <text x="640" y="233" text-anchor="middle" font-size="13" fill="#57606a">return，循环结束</text>
+
+  <!-- 边：用户任务 → LLM 决策 -->
+  <path d="M210,83 L298,83" stroke="#57606a" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- 边：LLM 决策 → 判断 -->
+  <path d="M385,106 L385,163" stroke="#57606a" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- 边：判断 → 执行工具（TOOL） -->
+  <path d="M290,220 L272,220" stroke="#57606a" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="281" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="#24292f">TOOL</text>
+
+  <!-- 边：执行工具 → 观察写回 -->
+  <path d="M195,243 C190,280 182,292 177,318" stroke="#57606a" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- 边：观察写回 → LLM 决策（回环） -->
+  <path d="M90,320 L90,40 L350,40 L350,58" stroke="#0969da" stroke-width="1.5" fill="none" marker-end="url(#arrowBlue)"/>
+  <text x="140" y="32" font-size="13" fill="#0969da">继续下一轮：history 全量回传给 LLM</text>
+
+  <!-- 边：判断 → 最终回答（FINAL） -->
+  <path d="M480,220 L558,220" stroke="#2da44e" stroke-width="1.5" fill="none" marker-end="url(#arrowGreen)"/>
+  <text x="519" y="208" text-anchor="middle" font-size="13" font-weight="600" fill="#2da44e">FINAL</text>
+
+  <!-- 安全阀虚线框 -->
+  <rect x="550" y="295" width="200" height="140" rx="10" fill="#ffebe9" stroke="#cf222e" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="566" y="322" font-size="15" font-weight="700" fill="#cf222e">安全阀 · 保护层</text>
+  <text x="566" y="346" font-size="13" fill="#24292f">· 停止条件：FINAL 回答</text>
+  <text x="566" y="368" font-size="13" fill="#24292f">· 重复调用检测（签名）</text>
+  <text x="566" y="390" font-size="13" fill="#24292f">· 连续错误熔断</text>
+  <text x="566" y="412" font-size="13" font-weight="700" fill="#cf222e">· 最大步数 maxSteps 兜底</text>
+
+  <!-- 安全阀与循环的虚线关联：每轮结束检查 -->
+  <path d="M550,332 C490,312 440,296 390,277" stroke="#cf222e" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+  <text x="408" y="320" font-size="13" fill="#cf222e">每轮结束检查</text>
+</svg>

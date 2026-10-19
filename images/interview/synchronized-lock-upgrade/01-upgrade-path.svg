@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 240" width="760" height="240" role="img" aria-label="synchronized 锁升级路径">
+  <rect x="0" y="0" width="760" height="240" rx="10" fill="#f8f9fa"/>
+  <text x="380" y="32" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="15" font-weight="600" fill="#24292f">synchronized 锁升级路径：按竞争强度切换状态</text>
+
+  <!-- 节点1：无锁（可偏向） -->
+  <rect x="20" y="95" width="140" height="54" rx="8" fill="#eaf5ff" stroke="#4493f8" stroke-width="1.5"/>
+  <text x="90" y="118" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="14" font-weight="600" fill="#24292f">无锁</text>
+  <text x="90" y="138" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">新建对象可偏向</text>
+
+  <!-- 节点2：偏向锁 -->
+  <rect x="213" y="95" width="140" height="54" rx="8" fill="#fff3cd" stroke="#bf8700" stroke-width="1.5"/>
+  <text x="283" y="118" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="14" font-weight="600" fill="#24292f">偏向锁</text>
+  <text x="283" y="138" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">mark word 记线程 ID</text>
+
+  <!-- 节点3：轻量级锁 -->
+  <rect x="406" y="95" width="140" height="54" rx="8" fill="#ffe7d1" stroke="#d4760a" stroke-width="1.5"/>
+  <text x="476" y="118" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="14" font-weight="600" fill="#24292f">轻量级锁</text>
+  <text x="476" y="138" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">CAS 自旋抢锁</text>
+
+  <!-- 节点4：重量级锁 -->
+  <rect x="599" y="95" width="140" height="54" rx="8" fill="#ffebe9" stroke="#d1242f" stroke-width="1.5"/>
+  <text x="669" y="118" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="14" font-weight="600" fill="#24292f">重量级锁</text>
+  <text x="669" y="138" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">ObjectMonitor</text>
+
+  <!-- 箭头1 -->
+  <text x="186" y="72" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">第一个线程进入</text>
+  <text x="186" y="88" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">同步块</text>
+  <line x1="163" y1="122" x2="205" y2="122" stroke="#57606a" stroke-width="1.5"/>
+  <polygon points="205,122 198,118 198,126" fill="#57606a"/>
+
+  <!-- 箭头2 -->
+  <text x="379" y="72" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">第二个线程竞争</text>
+  <text x="379" y="88" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">偏向被撤销</text>
+  <line x1="356" y1="122" x2="398" y2="122" stroke="#57606a" stroke-width="1.5"/>
+  <polygon points="398,122 391,118 391,126" fill="#57606a"/>
+
+  <!-- 箭头3 -->
+  <text x="572" y="72" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">线程阻塞等待</text>
+  <text x="572" y="88" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">或自旋超时失败</text>
+  <line x1="549" y1="122" x2="591" y2="122" stroke="#57606a" stroke-width="1.5"/>
+  <polygon points="591,122 584,118 584,126" fill="#57606a"/>
+
+  <!-- Mark Word 标志位 -->
+  <text x="90" y="172" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">lock=01 · biased=1</text>
+  <text x="283" y="172" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">lock=01 · biased=1</text>
+  <text x="476" y="172" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">lock=00 → Lock Record</text>
+  <text x="669" y="172" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">lock=10 → Monitor</text>
+
+  <!-- 底部注释 -->
+  <text x="380" y="212" text-anchor="middle" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" fill="#57606a">注：偏向撤销后对象退为普通无锁，不可再偏向；JDK 15（JEP 374）起偏向锁默认关闭</text>
+</svg>
