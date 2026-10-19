@@ -1,0 +1,56 @@
+LoongStack 版权声明
+====================
+
+本站：https://yxinlong57-spec.github.io/vuepress-blog/
+站点：LoongStack（作者 Loong，https://github.com/yxinlong57-spec）
+
+本站内容分为两类，分别适用不同许可协议。
+
+一、文章内容（文章正文、插图、图表、示例数据）
+--------------------------------------------
+
+采用「知识共享 署名-非商业性使用-相同方式共享 4.0 国际」
+（Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International，CC BY-NC-SA 4.0）
+
+你可以：
+- 自由复制、转载、引用本站文章
+- 在注明出处的前提下改编、二次创作
+
+但必须遵守：
+- 署名（BY）：注明作者为 Loong，并给出原文链接
+- 非商业性使用（NC）：不得用于商业用途、付费内容或商业培训
+- 相同方式共享（SA）：基于本站内容产生的二次作品，需以相同协议发布
+
+协议全文：https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh
+
+二、站点源码（VuePress 配置、脚本、样式等）
+------------------------------------------
+
+采用 MIT License，可自由使用、修改、分发，需保留本版权声明。
+
+Copyright (c) 2026 Loong
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+三、例外与说明
+--------------
+
+- 文章中引用的第三方代码片段、规范文档、图片、商标，版权归各自原作者所有，遵循其原始许可。
+- 文中标注版本与环境的技术结论，仅代表该版本下的实测结果，不构成绝对保证。
+- 商业合作、付费转载授权请联系：1393260005@qq.com
