@@ -450,11 +450,15 @@ description: Java 后端打底、Agent 应用探路——一条从 Java 基础�
 - [x] 评测：怎么判断 Agent 变好了（[文章](./agent/agent-evaluation.html)）
 - [x] Spring AI 工具调用执行链（[文章](./agent/springai-tool-calling.html)）｜ [Spring AI 与 LangChain4j 对比](./agent/springai-vs-langchain4j.html)
 - [x] RAG：Java 手写最小 RAG（[文章](./agent/java-minimal-rag.html)）
-- [ ] 编排框架实战：Spring AI 工作流 / LangGraph4j
-- [ ] 上下文工程：提示词分层、工具描述优化、成本与延迟治理
-- [ ] 生产化：可观测、限流与降级、模型切换与回退
+- [x] 上下文工程：上下文预算、压缩、分层注入与按需检索（[文章](./agent/context-engineering.html)）
+- [x] 工作流编排：状态图、条件边、检查点与人工介入（[文章](./agent/workflow-orchestration.html)）
+- [x] MCP Server 实现：按规范手写协议面并跑通完整交互（[文章](./agent/mcp-server-java.html)）
+- [x] Agentic RAG：查询改写、混合召回、重排与纠错循环（[文章](./agent/agentic-rag.html)）
+- [x] Agent 可观测性：Span 树、指标与成本账本（[文章](./agent/agent-observability.html)）
+- [ ] 框架级编排落地：LangGraph4j / Spring AI 工作流（要求本机真跑，不是抄文档）
+- [ ] 生产化补齐：限流与降级、模型路由与回退、工具描述与提示词调优
 
-**配套文章**：✅ 上列 13 篇（详见 [Agent 探索专栏](./agent/)）｜ `待写`：编排实战、上下文工程、Agent 生产化
+**配套文章**：✅ 上列 18 篇（详见 [Agent 探索专栏](./agent/)）｜ `待写`：框架级编排落地、模型路由与降级
 
 **推荐资料**
 

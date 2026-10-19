@@ -80,6 +80,7 @@ export default sidebar({
       children: [
         "agent-skills.md",
         "mcp-local-tools.md",
+        "mcp-server-java.md",
         "mcp-security.md",
         "a2a-vs-mcp.md",
         "multi-agent-architecture.md",
@@ -97,9 +98,23 @@ export default sidebar({
       ],
     },
     {
+      text: "上下文与编排",
+      icon: "sitemap",
+      children: ["context-engineering.md", "workflow-orchestration.md"],
+    },
+    {
       text: "Spring AI 与 RAG",
       icon: "wand-magic-sparkles",
-      children: ["springai-tool-calling.md", "java-minimal-rag.md"],
+      children: [
+        "springai-tool-calling.md",
+        "java-minimal-rag.md",
+        "agentic-rag.md",
+      ],
+    },
+    {
+      text: "生产化与治理",
+      icon: "chart-line",
+      children: ["agent-observability.md"],
     },
   ],
   "/projects/": ["", "vuepress-blog.md"],
