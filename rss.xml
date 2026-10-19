@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xsl"?>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://yxinlong57-spec.github.io/vuepress-blog/rss.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <atom:link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml" rel="self" type="application/rss+xml"/>
     <title>LoongStack</title>
-    <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/</link>
+    <link>https://yxinlong57-spec.github.io/vuepress-blog/</link>
     <description>LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。</description>
     <language>zh-CN</language>
-    <pubDate>Mon, 19 Oct 2026 06:09:25 GMT</pubDate>
-    <lastBuildDate>Mon, 19 Oct 2026 06:09:25 GMT</lastBuildDate>
+    <pubDate>Mon, 19 Oct 2026 06:15:43 GMT</pubDate>
+    <lastBuildDate>Mon, 19 Oct 2026 06:15:43 GMT</lastBuildDate>
     <generator>@vuepress/plugin-feed</generator>
     <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
     <category>面经手册</category>
@@ -16,9 +16,9 @@
     <category>存储与 IO</category>
     <item>
       <title>面经八股自测 20 题</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/quiz.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/quiz.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">面经八股自测 20 题</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/interview/quiz.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/interview/quiz.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">面经八股自测 20 题</source>
       <description>Java 后端面试高频 20 题自测，覆盖 HashMap、synchronized、ThreadLocal、线程池、JVM、MySQL、Redis，每题附答案与专栏精讲链接。</description>
       <category>面经手册</category>
       <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
@@ -111,9 +111,9 @@
     </item>
     <item>
       <title>Java 后端简历资源包</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/resume.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/resume.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Java 后端简历资源包</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/interview/resume.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/interview/resume.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Java 后端简历资源包</source>
       <description>Java 后端简历写法导航：项目经历包装四篇系列文 + 简历结构模板 + 投递前自查清单。</description>
       <category>面经手册</category>
       <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
@@ -165,9 +165,9 @@
     </item>
     <item>
       <title>A2A 1.0 到底和 MCP 差在哪：从 Agent Card、Task 到 Java 最小互操作</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/a2a-vs-mcp.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/a2a-vs-mcp.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">A2A 1.0 到底和 MCP 差在哪：从 Agent Card、Task 到 Java 最小互操作</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/a2a-vs-mcp.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/a2a-vs-mcp.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">A2A 1.0 到底和 MCP 差在哪：从 Agent Card、Task 到 Java 最小互操作</source>
       <description>A2A 1.0 和 MCP 到底差在哪：从 Agent Card、Task 状态机到 a2a-java 最小互操作实测。</description>
       <category>Agent</category>
       <pubDate>Tue, 06 Oct 2026 00:00:00 GMT</pubDate>
@@ -199,9 +199,9 @@
     </item>
     <item>
       <title>Agent 评测不能只看最终答案：轨迹、工具调用和成本的多维度评估框架</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-evaluation.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-evaluation.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Agent 评测不能只看最终答案：轨迹、工具调用和成本的多维度评估框架</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-evaluation.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-evaluation.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Agent 评测不能只看最终答案：轨迹、工具调用和成本的多维度评估框架</source>
       <description>Agent 评测不能只看最终答案：轨迹、工具调用、成本的多维度评估框架。</description>
       <category>Agent</category>
       <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
@@ -250,9 +250,9 @@
     </item>
     <item>
       <title>Agent 的记忆工程：上下文窗口、短期会话和长期记忆到底怎么分工</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-memory.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-memory.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Agent 的记忆工程：上下文窗口、短期会话和长期记忆到底怎么分工</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-memory.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-memory.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Agent 的记忆工程：上下文窗口、短期会话和长期记忆到底怎么分工</source>
       <description>上下文窗口、短期会话和长期记忆到底怎么分工：Agent 记忆工程的分层设计。</description>
       <category>Agent</category>
       <pubDate>Mon, 05 Oct 2026 00:00:00 GMT</pubDate>
@@ -281,9 +281,9 @@
     </item>
     <item>
       <title>Agent Skills 为什么不能只是“长提示词”：SKILL.md、按需加载和权限边界</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-skills.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-skills.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Agent Skills 为什么不能只是“长提示词”：SKILL.md、按需加载和权限边界</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-skills.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-skills.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Agent Skills 为什么不能只是“长提示词”：SKILL.md、按需加载和权限边界</source>
       <description>Agent Skills 为什么不能只是长提示词：SKILL.md 结构、按需加载和权限边界的工程实践。</description>
       <category>Agent</category>
       <pubDate>Tue, 06 Oct 2026 00:00:00 GMT</pubDate>
@@ -317,9 +317,9 @@
     </item>
     <item>
       <title>AI Agent 入门：新手和转行者先学什么，别一上来就啃框架</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/ai-agent-intro.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/ai-agent-intro.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">AI Agent 入门：新手和转行者先学什么，别一上来就啃框架</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/ai-agent-intro.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/ai-agent-intro.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">AI Agent 入门：新手和转行者先学什么，别一上来就啃框架</source>
       <description>AI Agent 入门路线：新手和转行者先学什么、别一上来就啃框架，一份务实的学习顺序。</description>
       <category>Agent</category>
       <pubDate>Sun, 04 Oct 2026 00:00:00 GMT</pubDate>
@@ -338,9 +338,9 @@
     </item>
     <item>
       <title>Function Calling 参数为什么校验失败：从 Schema、类型到错误信息的完整排查</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/function-calling-validation.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/function-calling-validation.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Function Calling 参数为什么校验失败：从 Schema、类型到错误信息的完整排查</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/function-calling-validation.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/function-calling-validation.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Function Calling 参数为什么校验失败：从 Schema、类型到错误信息的完整排查</source>
       <description>Function Calling 参数为什么校验失败：从 JSON Schema、类型系统到错误信息的完整排查链。</description>
       <category>Agent</category>
       <pubDate>Tue, 13 Oct 2026 00:00:00 GMT</pubDate>
@@ -380,9 +380,9 @@
     </item>
     <item>
       <title>用 Java 手写一个最小 RAG：从文档切分、向量检索到 Prompt 拼接的完整链路</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/java-minimal-rag.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/java-minimal-rag.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">用 Java 手写一个最小 RAG：从文档切分、向量检索到 Prompt 拼接的完整链路</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/java-minimal-rag.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/java-minimal-rag.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">用 Java 手写一个最小 RAG：从文档切分、向量检索到 Prompt 拼接的完整链路</source>
       <description>用 Java 手写一个最小 RAG：文档切分、向量检索到 Prompt 拼接的完整链路。</description>
       <category>Agent</category>
       <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
@@ -426,9 +426,9 @@
     </item>
     <item>
       <title>MCP 接入本地工具：把线上消息摊开看握手、tools/call、权限和错误分层</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-local-tools.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-local-tools.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">MCP 接入本地工具：把线上消息摊开看握手、tools/call、权限和错误分层</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-local-tools.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-local-tools.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MCP 接入本地工具：把线上消息摊开看握手、tools/call、权限和错误分层</source>
       <description>MCP 接入本地工具实测：把 initialize、tools/list、tools/call 的握手消息摊开看权限与错误分层。</description>
       <category>Agent</category>
       <pubDate>Tue, 13 Oct 2026 00:00:00 GMT</pubDate>
@@ -538,9 +538,9 @@
     </item>
     <item>
       <title>MCP 工具接入的安全边界：从 Confused Deputy 到最小权限，别把 Agent 变成万能钥匙</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-security.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-security.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">MCP 工具接入的安全边界：从 Confused Deputy 到最小权限，别把 Agent 变成万能钥匙</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-security.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-security.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MCP 工具接入的安全边界：从 Confused Deputy 到最小权限，别把 Agent 变成万能钥匙</source>
       <description>MCP 工具接入的安全边界：从 Confused Deputy 问题到最小权限设计，别把 Agent 变成万能钥匙。</description>
       <category>Agent</category>
       <pubDate>Mon, 05 Oct 2026 00:00:00 GMT</pubDate>
@@ -572,9 +572,9 @@
     </item>
     <item>
       <title>不用框架手写一个最小 Agent 循环：最大步数、停止条件和失控熔断怎么设计</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/minimal-agent-loop.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/minimal-agent-loop.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">不用框架手写一个最小 Agent 循环：最大步数、停止条件和失控熔断怎么设计</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/minimal-agent-loop.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/minimal-agent-loop.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">不用框架手写一个最小 Agent 循环：最大步数、停止条件和失控熔断怎么设计</source>
       <description>不用框架手写最小 Agent 循环：最大步数、停止条件和失控熔断的设计要点。</description>
       <category>Agent</category>
       <pubDate>Tue, 13 Oct 2026 00:00:00 GMT</pubDate>
@@ -782,13 +782,13 @@
 <li>建议每个学 Agent 框架的人都手写一遍这个循环。之后框架里任何一层行为异常，你都能定位到它属于骨架的哪一环。</li>
 </ul>
 ]]></content:encoded>
-      <enclosure url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/images/agent/minimal-agent-loop/01-agent-loop.svg" type="image/svg+xml"/>
+      <enclosure url="https://yxinlong57-spec.github.io/vuepress-blog/images/agent/minimal-agent-loop/01-agent-loop.svg" type="image/svg+xml"/>
     </item>
     <item>
       <title>多 Agent 什么时候值得用：单 Agent、固定 Workflow、多 Agent 的一次成本实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/multi-agent-architecture.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/multi-agent-architecture.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">多 Agent 什么时候值得用：单 Agent、固定 Workflow、多 Agent 的一次成本实测</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/multi-agent-architecture.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/multi-agent-architecture.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">多 Agent 什么时候值得用：单 Agent、固定 Workflow、多 Agent 的一次成本实测</source>
       <description>单 Agent、固定 Workflow、多 Agent 一次成本实测：多 Agent 什么时候才值得用。</description>
       <category>Agent</category>
       <pubDate>Tue, 13 Oct 2026 00:00:00 GMT</pubDate>
@@ -848,9 +848,9 @@
     </item>
     <item>
       <title>Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-tool-calling.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-tool-calling.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-tool-calling.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-tool-calling.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限</source>
       <description>Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限控制。</description>
       <category>Agent</category>
       <pubDate>Wed, 07 Oct 2026 00:00:00 GMT</pubDate>
@@ -959,9 +959,9 @@
     </item>
     <item>
       <title>Java 项目接大模型：Spring AI 和 LangChain4j 先比较什么（选型实测视角）</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-vs-langchain4j.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-vs-langchain4j.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">Java 项目接大模型：Spring AI 和 LangChain4j 先比较什么（选型实测视角）</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-vs-langchain4j.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-vs-langchain4j.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Java 项目接大模型：Spring AI 和 LangChain4j 先比较什么（选型实测视角）</source>
       <description>Java 项目接大模型先比较什么：Spring AI 与 LangChain4j 的选型实测视角。</description>
       <category>Agent</category>
       <pubDate>Tue, 13 Oct 2026 00:00:00 GMT</pubDate>
@@ -1004,9 +1004,9 @@
     </item>
     <item>
       <title>MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-index-failure.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-index-failure.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-index-failure.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-index-failure.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因</source>
       <description>用同一张表前后 EXPLAIN 对比，定位 MySQL 索引失效的常见原因：函数、隐式转换、前导模糊匹配。</description>
       <category>MySQL</category>
       <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
@@ -1055,9 +1055,9 @@
     </item>
     <item>
       <title>最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-leftmost-prefix.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-leftmost-prefix.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-leftmost-prefix.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-leftmost-prefix.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测</source>
       <description>联合索引、范围查询和 ORDER BY 一次实测：最左前缀原则到底约束了什么。</description>
       <category>MySQL</category>
       <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
@@ -1100,13 +1100,13 @@
 <p>| type | key | key_len | rows | Extra |<br>
 |</p>
 ]]></content:encoded>
-      <enclosure url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/images/backend/mysql-leftmost-prefix/01-leftmost-match.svg" type="image/svg+xml"/>
+      <enclosure url="https://yxinlong57-spec.github.io/vuepress-blog/images/backend/mysql-leftmost-prefix/01-leftmost-match.svg" type="image/svg+xml"/>
     </item>
     <item>
       <title>MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-readview-rr-rc.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-readview-rr-rc.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-readview-rr-rc.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-readview-rr-rc.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测</source>
       <description>RR 和 RC 的 ReadView 生成时机实测：MySQL 可重复读到底「重复」在哪。</description>
       <category>MySQL</category>
       <pubDate>Fri, 09 Oct 2026 00:00:00 GMT</pubDate>
@@ -1262,9 +1262,9 @@
     </item>
     <item>
       <title>MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测</source>
       <description>SELECT 与 SELECT ... FOR UPDATE 并发实测：快照读和当前读的区别与加锁边界。</description>
       <category>MySQL</category>
       <pubDate>Fri, 09 Oct 2026 00:00:00 GMT</pubDate>
@@ -1412,9 +1412,9 @@
     </item>
     <item>
       <title>为什么 NoSQL 查询更快？答案不在数据库名字里</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/nosql-why-faster.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/nosql-why-faster.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/rss.xml">为什么 NoSQL 查询更快？答案不在数据库名字里</source>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/nosql-why-faster.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/nosql-why-faster.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">为什么 NoSQL 查询更快？答案不在数据库名字里</source>
       <description>NoSQL 查询更快？答案不在名字里：内存存储、数据结构和避免 JOIN 的工程取舍。</description>
       <category>存储与 IO</category>
       <pubDate>Sat, 03 Oct 2026 00:00:00 GMT</pubDate>

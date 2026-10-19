@@ -1,20 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/atom.xsl"?>
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://yxinlong57-spec.github.io/vuepress-blog/atom.xsl"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
-  <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/</id>
+  <id>https://yxinlong57-spec.github.io/vuepress-blog/</id>
   <title>LoongStack</title>
   <subtitle>LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。</subtitle>
-  <updated>2026-10-19T06:09:25.016Z</updated>
+  <updated>2026-10-19T06:15:43.296Z</updated>
   <generator>@vuepress/plugin-feed</generator>
-  <link rel="self" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/atom.xml"/>
-  <link rel="alternate" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/"/>
+  <link rel="self" href="https://yxinlong57-spec.github.io/vuepress-blog/atom.xml"/>
+  <link rel="alternate" href="https://yxinlong57-spec.github.io/vuepress-blog/"/>
   <category term="面经手册"/>
   <category term="Agent"/>
   <category term="MySQL"/>
   <category term="存储与 IO"/>
   <entry>
     <title type="text">面经八股自测 20 题</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/quiz.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/quiz.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/interview/quiz.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/interview/quiz.html"/>
     <updated>2026-10-19T05:27:31.000Z</updated>
     <summary type="html"><![CDATA[<p>先自己默答，再点开答案核对。答不出来的题，点题末链接去专栏里把原理吃透——<strong>能讲清原理的八股才是自己的</strong>。</p>
 <h2>集合与并发</h2>
@@ -113,8 +113,8 @@
   </entry>
   <entry>
     <title type="text">Java 后端简历资源包</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/resume.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/interview/resume.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/interview/resume.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/interview/resume.html"/>
     <updated>2026-10-19T05:27:31.000Z</updated>
     <summary type="html"><![CDATA[<p>简历是面试的入场券，也是面试的考题来源——<strong>面试官的追问基本都从你的简历出发</strong>。这里把专栏的简历系列文章和实用模板收拢到一处。</p>
 <h2>系列文章：项目经历怎么写</h2>
@@ -175,8 +175,8 @@
   </entry>
   <entry>
     <title type="text">A2A 1.0 到底和 MCP 差在哪：从 Agent Card、Task 到 Java 最小互操作</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/a2a-vs-mcp.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/a2a-vs-mcp.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/a2a-vs-mcp.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/a2a-vs-mcp.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>实验环境：Windows 11、Oracle JDK 17.0.12、Maven 3.9.14、a2a-java 1.4.0.Final<br>
@@ -226,8 +226,8 @@
   </entry>
   <entry>
     <title type="text">Agent 评测不能只看最终答案：轨迹、工具调用和成本的多维度评估框架</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-evaluation.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-evaluation.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-evaluation.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-evaluation.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>适用读者：正在做 Agent 应用开发、需要建立评测体系的后端和 AI 应用开发者<br>
@@ -293,8 +293,8 @@
   </entry>
   <entry>
     <title type="text">Agent 的记忆工程：上下文窗口、短期会话和长期记忆到底怎么分工</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-memory.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-memory.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-memory.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-memory.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>资料与实验说明：LangChain/LangGraph OSS 文档以 2026-10-05 可访问内容为准；Java 示例使用 Windows 11、Oracle JDK 17.0.12 和 JDK 标准库运行。示例只模拟状态边界，不替代框架的 checkpoint 或 store 实现。</p>
@@ -338,8 +338,8 @@
   </entry>
   <entry>
     <title type="text">Agent Skills 为什么不能只是“长提示词”：SKILL.md、按需加载和权限边界</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-skills.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/agent-skills.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-skills.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-skills.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>实验环境：Windows 11、Oracle JDK 17.0.12、Python 3、PowerShell<br>
@@ -391,8 +391,8 @@
   </entry>
   <entry>
     <title type="text">AI Agent 入门：新手和转行者先学什么，别一上来就啃框架</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/ai-agent-intro.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/ai-agent-intro.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/ai-agent-intro.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/ai-agent-intro.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<p>打开 B 站搜“AI Agent”，你大概率会看到 Coze、Dify、LangChain、LangGraph、MCP、RAG、多智能体，还有各种“七天转行”和“从零到企业级”。课程没少收藏，真正的问题反而是第一步该做什么。时间很容易耗在换框架、比模型、看别人演示上，最后连一次完整的工具调用都没有跑通。</p>
 <p>这篇不是课程目录，也不是框架 API 速查。它想解决一个更前面的问题：不知道编程、目标岗位和已有基础的新手与转行者，应该按什么顺序进入 Agent，哪些东西可以先跳过，学到什么程度才算真的入门。</p>
@@ -415,8 +415,8 @@
   </entry>
   <entry>
     <title type="text">Function Calling 参数为什么校验失败：从 Schema、类型到错误信息的完整排查</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/function-calling-validation.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/function-calling-validation.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/function-calling-validation.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/function-calling-validation.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin），纯 JDK 单文件实验，无第三方依赖<br>
@@ -469,8 +469,8 @@
   </entry>
   <entry>
     <title type="text">用 Java 手写一个最小 RAG：从文档切分、向量检索到 Prompt 拼接的完整链路</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/java-minimal-rag.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/java-minimal-rag.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/java-minimal-rag.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/java-minimal-rag.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>环境：Windows 11、JDK 17.0.12、Maven 3.9.14<br>
@@ -532,8 +532,8 @@
   </entry>
   <entry>
     <title type="text">MCP 接入本地工具：把线上消息摊开看握手、tools/call、权限和错误分层</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-local-tools.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-local-tools.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-local-tools.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-local-tools.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin），纯 JDK 单文件实验，无第三方依赖<br>
@@ -658,8 +658,8 @@
   </entry>
   <entry>
     <title type="text">MCP 工具接入的安全边界：从 Confused Deputy 到最小权限，别把 Agent 变成万能钥匙</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-security.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/mcp-security.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-security.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-security.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>协议版本：MCP 2026-07-28<br>
@@ -707,8 +707,8 @@
   </entry>
   <entry>
     <title type="text">不用框架手写一个最小 Agent 循环：最大步数、停止条件和失控熔断怎么设计</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/minimal-agent-loop.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/minimal-agent-loop.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/minimal-agent-loop.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/minimal-agent-loop.html"/>
     <updated>2026-10-19T05:27:31.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin），纯 JDK 单文件，无第三方依赖<br>
@@ -934,8 +934,8 @@
   </entry>
   <entry>
     <title type="text">多 Agent 什么时候值得用：单 Agent、固定 Workflow、多 Agent 的一次成本实测</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/multi-agent-architecture.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/multi-agent-architecture.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/multi-agent-architecture.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/multi-agent-architecture.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin），纯 JDK 单文件实验，无第三方依赖<br>
@@ -1011,8 +1011,8 @@
   </entry>
   <entry>
     <title type="text">Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-tool-calling.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-tool-calling.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-tool-calling.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-tool-calling.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>环境：Windows 11、JDK 17.0.12、Maven 3.9.14、Spring Boot 4.1.1、Spring AI 2.0.1</p>
@@ -1137,8 +1137,8 @@
   </entry>
   <entry>
     <title type="text">Java 项目接大模型：Spring AI 和 LangChain4j 先比较什么（选型实测视角）</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-vs-langchain4j.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/agent/springai-vs-langchain4j.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-vs-langchain4j.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/agent/springai-vs-langchain4j.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>参照版本：Spring AI 2.0.x（1.0 于 2025 年 5 月 GA）、LangChain4j 1.x（注意：1.0 起核心接口 <code>ChatLanguageModel</code> 更名为 <code>ChatModel</code>）<br>
@@ -1196,8 +1196,8 @@
   </entry>
   <entry>
     <title type="text">MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-index-failure.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-index-failure.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-index-failure.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-index-failure.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<p>实验环境：Windows 11，MySQL Community Server 8.0.45，<code>utf8mb4</code> 字符集，InnoDB 表，人工造数 100000 行。本文中的行数、访问类型和耗时均来自这一轮本地实验，换一份数据后需要重新执行 <code>EXPLAIN</code>。</p>
 <h2>目录</h2>
@@ -1260,8 +1260,8 @@
   </entry>
   <entry>
     <title type="text">最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-leftmost-prefix.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-leftmost-prefix.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-leftmost-prefix.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-leftmost-prefix.html"/>
     <updated>2026-10-19T05:27:31.000Z</updated>
     <summary type="html"><![CDATA[<p>实验环境：Windows 11，MySQL Community Server 8.0.45，<code>utf8mb4</code> 字符集，InnoDB 表，人工造数 100000 行。表上只有一个联合索引 <code>idx_user_event_time(user_id, event_type, created_at)</code>，本文用它观察范围访问、排序和覆盖索引。不同数据分布下优化器可能给出不同计划。</p>
 <h2>目录</h2>
@@ -1320,8 +1320,8 @@
   </entry>
   <entry>
     <title type="text">MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-readview-rr-rc.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-readview-rr-rc.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-readview-rr-rc.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-readview-rr-rc.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>实验环境：Windows 11、MySQL Community Server 8.0.45、InnoDB，默认隔离级别为 <code>REPEATABLE-READ</code>。以下 SQL、时间戳和输出来自本机两个并发会话的实测，版本和数据分布发生变化时应重新验证。</p>
@@ -1492,8 +1492,8 @@
   </entry>
   <entry>
     <title type="text">MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/mysql-snapshot-vs-current-read.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-snapshot-vs-current-read.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<blockquote>
 <p>实验环境：Windows 11、MySQL Community Server 8.0.45、InnoDB，默认隔离级别为 <code>REPEATABLE-READ</code>。两个会话连接同一个临时实例，B 先更新但不提交，A 分别执行普通 <code>SELECT</code> 和 <code>SELECT ... FOR UPDATE</code>；输出的时间戳只是本次复现记录。</p>
@@ -1655,8 +1655,8 @@
   </entry>
   <entry>
     <title type="text">为什么 NoSQL 查询更快？答案不在数据库名字里</title>
-    <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/nosql-why-faster.html</id>
-    <link href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/backend/nosql-why-faster.html"/>
+    <id>https://yxinlong57-spec.github.io/vuepress-blog/backend/nosql-why-faster.html</id>
+    <link href="https://yxinlong57-spec.github.io/vuepress-blog/backend/nosql-why-faster.html"/>
     <updated>2026-10-19T04:26:48.000Z</updated>
     <summary type="html"><![CDATA[<h2>快速认识</h2>
 <p>“NoSQL 查询更快”这句话只说对了一半。同一个查询，换一种数据模型和访问路径，命中主键可能比多表连接快很多；但如果要做复杂关联、强事务和全局聚合，关系型数据库也经常反超。</p>
