@@ -16,6 +16,18 @@ export default defineUserConfig({
   description:
     "LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
 
+  // 搜索引擎站点所有权验证标记（Google Search Console / 百度站长等）
+  // 这类验证码是公开明文，写进页面源码正是其设计目的，可安全入库
+  head: [
+    [
+      "meta",
+      {
+        name: "google-site-verification",
+        content: "2UJTzgjz4DUQjGBkRKYNdwq61QS8WSy3RvIasEeeUsc",
+      },
+    ],
+  ],
+
   theme,
 
   plugins: [
