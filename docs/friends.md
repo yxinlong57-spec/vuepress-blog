@@ -11,7 +11,7 @@ description: LoongStack 友链页：本站信息与友链交换规则。
 交换友链时可按以下信息添加本站：
 
 ```yaml
-名称: LoongStack 龙栈
+名称: LoongStack
 链接: https://yxinlong57-spec.github.io/vuepress-blog/
 简介: Java 后端打底，Agent 应用探路——一个计算机学生的技术成长记录
 头像: https://yxinlong57-spec.github.io/vuepress-blog/images/avatar.jpg

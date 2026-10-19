@@ -1,4 +1,5 @@
 import { viteBundler } from "@vuepress/bundler-vite";
+import { baiduAnalyticsPlugin } from "@vuepress/plugin-baidu-analytics";
 import { writeFile } from "node:fs/promises";
 import { defineUserConfig } from "vuepress";
 
@@ -11,13 +12,18 @@ export default defineUserConfig({
   base: process.env.BASE_PATH || "/",
 
   lang: "zh-CN",
-  title: "Loong 龙栈 LoongStack",
+  title: "LoongStack",
   description:
-    "Loong 龙栈：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
+    "LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
 
   theme,
 
   plugins: [
+    // 百度统计（站点 ID 为公开明文，可安全入库）
+    baiduAnalyticsPlugin({
+      id: "1d7686efbd21624e5578f7af2725e070",
+    }),
+
     // sitemap 插件往 robots.txt 追加的 Sitemap 行会重复拼接 base（上游 bug），
     // 构建结束后用正确内容覆盖，确保爬虫拿到完整 sitemap 地址
     {
