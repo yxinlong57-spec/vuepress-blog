@@ -38,6 +38,8 @@ export default hopeTheme({
   blog: {
     description: "Java 后端打底，Agent 应用探路，公开记录一个计算机学生的技术成长路线。",
     intro: "/intro.html",
+    avatar: "/images/avatar.jpg",
+    roundAvatar: true,
     medias: {
       CSDN: {
         icon: "https://g.csdnimg.cn/static/logo/favicon32.ico",

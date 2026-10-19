@@ -4,6 +4,11 @@ icon: house
 title: 首页
 heroText: Loong 龙栈 LoongStack
 tagline: 包含：Java 基础、集合源码、并发编程、JVM、MySQL、Redis、Spring 实战、Agent 与 LLM 应用开发…
+heroImage: /images/avatar.jpg
+heroImageStyle:
+  border-radius: 50%
+  max-width: 220px
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18)
 heroFullScreen: false
 actions:
   - text: 开始阅读 →
