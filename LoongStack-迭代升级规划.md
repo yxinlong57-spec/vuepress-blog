@@ -61,7 +61,9 @@
 
 **目标**：可发现性（SEO/统计/订阅）达到正式站水平。
 
-- [x] SEO：每篇文章补 `description` 前言摘要（P0 完成）；sitemap.xml 修复并验证（hostname 含 base，robots 用 onGenerated 覆写）
+- [x] SEO：每篇文章补 `description` 前言摘要（P0 完成）
+- [x] sitemap / robots / RSS / og:url 链接实测全部正确（bug 修复：theme `hostname` 改为纯域名——含 base 会让 RSS 条目链接重复拼接成 404；另删除一度误加的 robots.txt 覆写钩子）
+- [~] 搜索引擎收录：Google 验证标记已上线待点验证；百度站长待验证后提交 sitemap
 - [x] 接入统计：百度统计已接入（config.ts `baiduAnalyticsPlugin`，站点 ID 属公开明文；待用户在后台完成代码校验）
 - [x] RSS 订阅（theme-hope `plugins.feed`：rss.xml / atom.xml / feed.json）
 - [x] 站内搜索体验确认——发现并修复 slimsearch 插件未安装导致搜索从未生效的问题

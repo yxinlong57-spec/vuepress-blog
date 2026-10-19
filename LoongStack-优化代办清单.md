@@ -70,7 +70,10 @@
 
 - [x] **RSS 订阅**：`plugins.feed` 已输出 /rss.xml、/atom.xml、/feed.json（20 条），首页联系我板块有入口，阅读器可直接订阅
 - [x] **访问统计**：百度统计已接入（站点 ID `1d7686efbd21624e5578f7af2725e070`，config.ts 挂 `baiduAnalyticsPlugin`，客户端运行时注入 hm.js，不拖首屏）；数据看 [tongji.baidu.com](https://tongji.baidu.com/) 后台「实时访客」——**剩用户在后台点一次「代码检查」完成校验**
-- [~] **SEO 深化**：sitemap.xml 已修复（hostname 补 base + robots 覆写上游 bug）并验证可访问；description 全覆盖（P0 完成）——**剩用户操作**：把 `https://yxinlong57-spec.github.io/vuepress-blog/sitemap.xml` 提交到 Google Search Console 与百度站长平台（需各自账号）
+- [x] **SEO 基础**：sitemap.xml（52 条 URL，全带 lastmod）、robots.txt、RSS/canonical/og:url 链接均已实测正确——关键结论是 theme 的 `hostname` 必须填**纯域名**（早前误填成含 base 的地址，导致 RSS 全部 20 条条目链接重复拼接成 404，2026-10-19 修复）；description 全覆盖（P0 完成）
+- [~] **搜索引擎收录**：Google 验证 meta 已上线（全站页面均带）；**剩用户操作**——Google Search Console 点「验证」后提交 `sitemap.xml`；百度站长添加站点 `yxinlong57-spec.github.io` 后用「百度统计」方式验证，再提交完整 sitemap 地址
+
+（已知小缺口：canonical 标签未输出——seo 插件需自定义 `seoContent` 才生成，本站单域名无重复内容风险，暂不加）
 - [x] **「面试必备」资源化**（对标 bugstack 面试板块）：
   - [x] 面经八股自测 20 题（`/interview/quiz.html`，折叠答案 + 错题回链专栏，可持续扩到 100 题）
   - [x] 简历资源包（`/interview/resume.html`：4 篇系列文导航 + 简历结构模板 + 投递前自查清单）
