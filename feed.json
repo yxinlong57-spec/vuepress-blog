@@ -1,9 +1,9 @@
 {
   "version": "https://jsonfeed.org/version/1.1",
-  "title": "Loong 龙栈 LoongStack",
+  "title": "LoongStack",
   "home_page_url": "https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/",
   "feed_url": "https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/feed.json",
-  "description": "Loong 龙栈：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
+  "description": "LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
   "items": [
     {
       "title": "面经八股自测 20 题",

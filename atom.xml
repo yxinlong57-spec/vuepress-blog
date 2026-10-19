@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/atom.xsl"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
   <id>https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/</id>
-  <title>Loong 龙栈 LoongStack</title>
-  <subtitle>Loong 龙栈：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。</subtitle>
-  <updated>2026-10-19T05:43:12.971Z</updated>
+  <title>LoongStack</title>
+  <subtitle>LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。</subtitle>
+  <updated>2026-10-19T05:55:10.822Z</updated>
   <generator>@vuepress/plugin-feed</generator>
   <link rel="self" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/atom.xml"/>
   <link rel="alternate" href="https://yxinlong57-spec.github.io/vuepress-blog/vuepress-blog/"/>
