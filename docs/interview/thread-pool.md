@@ -61,6 +61,8 @@ public ThreadPoolExecutor(int corePoolSize,
 
 JDK 11 中 `execute()` 的核心逻辑：
 
+![线程池任务执行判断流程](/images/interview/thread-pool/01-execute-flow.svg)
+
 ```java
 int c = ctl.get();
 if (workerCountOf(c) < corePoolSize) {

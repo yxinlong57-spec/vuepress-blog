@@ -33,6 +33,8 @@ order: 1
 
 这次实测出现了三个容易混淆的结果：只查 `event_type` 时仍然扫描了整棵联合索引；`event_type` 使用范围后，`created_at` 不再作为索引范围边界；等值条件覆盖前两列时，`ORDER BY created_at` 不再需要额外排序，而 `IN` 两个取值时又出现了 `Using filesort`。
 
+![联合索引最左匹配示意](/images/backend/mysql-leftmost-prefix/01-leftmost-match.svg)
+
 ## 实验表与数据分布
 
 ```sql

@@ -93,6 +93,26 @@ export default hopeTheme({
     // 图片点击放大
     photoSwipe: true,
 
+    // 回到顶部按钮
+    backToTop: true,
+
+    // Giscus 评论（基于 GitHub Discussions，需安装 giscus app 后生效）
+    comment: {
+      provider: "Giscus",
+      comment: true,
+      repo: "yxinlong57-spec/vuepress-blog",
+      repoId: "R_kgDOVOTKHg",
+      category: "General",
+      categoryId: "DIC_kwDOVOTKHs4DI9Zv",
+      mapping: "pathname",
+      strict: true,
+      reactionsEnabled: true,
+      inputPosition: "top",
+      lazyLoading: true,
+      lightTheme: "light",
+      darkTheme: "dark_dimmed",
+    },
+
     // 文章版权信息（转载自动带原文链接）
     copyright: {
       global: true,

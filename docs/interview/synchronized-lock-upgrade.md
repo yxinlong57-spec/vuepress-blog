@@ -118,6 +118,8 @@ static void dump(String tag, Object o) {
 
 和我一开始的预期不同：4 个线程各跑 3 次短同步块，观察到的始终是轻量级锁，没有膨胀。**"多线程竞争就升重量级"是错的**，只有当线程真正进入阻塞（或者自旋超时失败）才会膨胀。这点在写高并发代码时值得记住：能快速拿到锁的临界区，保持短小，就能一直待在廉价的轻量级状态。
 
+![synchronized 锁升级路径](/images/interview/synchronized-lock-upgrade/01-upgrade-path.svg)
+
 ## 现象五：调用 hashCode() 之后，对象再也不能偏向
 
 ```text
