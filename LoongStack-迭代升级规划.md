@@ -1,7 +1,7 @@
 # LoongStack 迭代升级规划
 
 > 对标站点：[bugstack.cn](https://bugstack.cn/)（小傅哥 虫洞栈）
-> 本文档是 LoongStack（Loong 龙栈）从「基础框架」到「成熟个人知识站」的演进路线。
+> 本文档是 LoongStack 从「基础框架」到「成熟个人知识站」的演进路线。
 > 用法：任务用 `[ ]` / `[x]` 勾选跟踪，每完成一个版本就把对应区块打勾并提交。
 > 当前版本：**v0.2（内容起步期，进行中）**
 
@@ -62,7 +62,7 @@
 **目标**：可发现性（SEO/统计/订阅）达到正式站水平。
 
 - [x] SEO：每篇文章补 `description` 前言摘要（P0 完成）；sitemap.xml 修复并验证（hostname 含 base，robots 用 onGenerated 覆写）
-- [~] 接入统计：百度统计——待用户注册拿站点 ID 后配置
+- [x] 接入统计：百度统计已接入（config.ts `baiduAnalyticsPlugin`，站点 ID 属公开明文；待用户在后台完成代码校验）
 - [x] RSS 订阅（theme-hope `plugins.feed`：rss.xml / atom.xml / feed.json）
 - [x] 站内搜索体验确认——发现并修复 slimsearch 插件未安装导致搜索从未生效的问题
 - [x] 404 页面定制（默认页确认可用，P1 完成）

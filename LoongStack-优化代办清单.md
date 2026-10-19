@@ -69,7 +69,7 @@
 > 目标：站外的人能搜到、订阅到、追踪到。
 
 - [x] **RSS 订阅**：`plugins.feed` 已输出 /rss.xml、/atom.xml、/feed.json（20 条），首页联系我板块有入口，阅读器可直接订阅
-- [~] **访问统计**：需用户先注册[百度统计](https://tongji.baidu.com/)拿到 `hm.js` 站点 ID，发我后 5 分钟配好（plugin-baidu-analytics）
+- [x] **访问统计**：百度统计已接入（站点 ID `1d7686efbd21624e5578f7af2725e070`，config.ts 挂 `baiduAnalyticsPlugin`，客户端运行时注入 hm.js，不拖首屏）；数据看 [tongji.baidu.com](https://tongji.baidu.com/) 后台「实时访客」——**剩用户在后台点一次「代码检查」完成校验**
 - [~] **SEO 深化**：sitemap.xml 已修复（hostname 补 base + robots 覆写上游 bug）并验证可访问；description 全覆盖（P0 完成）——**剩用户操作**：把 `https://yxinlong57-spec.github.io/vuepress-blog/sitemap.xml` 提交到 Google Search Console 与百度站长平台（需各自账号）
 - [x] **「面试必备」资源化**（对标 bugstack 面试板块）：
   - [x] 面经八股自测 20 题（`/interview/quiz.html`，折叠答案 + 错题回链专栏，可持续扩到 100 题）
