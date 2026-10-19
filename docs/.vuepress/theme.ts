@@ -4,8 +4,7 @@ import navbar from "./navbar.js";
 import sidebar from "./sidebar.js";
 
 export default hopeTheme({
-  // 含 base 路径，sitemap/RSS/canonical 才能生成完整 URL（VPS 根路径部署时需改回不带路径的域名）
-  hostname: "https://yxinlong57-spec.github.io/vuepress-blog",
+  hostname: "https://yxinlong57-spec.github.io",
 
   author: {
     name: "Loong",
