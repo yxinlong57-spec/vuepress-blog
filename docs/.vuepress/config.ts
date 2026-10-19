@@ -1,4 +1,5 @@
 import { viteBundler } from "@vuepress/bundler-vite";
+import { writeFile } from "node:fs/promises";
 import { defineUserConfig } from "vuepress";
 
 import theme from "./theme.js";
@@ -15,4 +16,20 @@ export default defineUserConfig({
     "Loong 龙栈：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。",
 
   theme,
+
+  plugins: [
+    // sitemap 插件往 robots.txt 追加的 Sitemap 行会重复拼接 base（上游 bug），
+    // 构建结束后用正确内容覆盖，确保爬虫拿到完整 sitemap 地址
+    {
+      name: "loongstack-robots",
+      onGenerated: async (app) => {
+        const hostname = "https://yxinlong57-spec.github.io";
+        await writeFile(
+          app.dir.dest("robots.txt"),
+          `User-agent:*\nDisallow:\n\nSitemap: ${hostname}${app.options.base}sitemap.xml\n`,
+          "utf-8",
+        );
+      },
+    },
+  ],
 });

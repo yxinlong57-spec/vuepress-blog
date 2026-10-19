@@ -73,6 +73,10 @@ footer: Copyright © 2022-2026 Loong
 
 - [面经手册](./interview/) —— 面试八股 + 底层原理，按主题系统梳理：集合源码、并发编程、JVM、MySQL、Redis。
 
+- [简历资源包](./interview/resume.html) —— 项目经历包装四篇系列文 + 简历结构模板 + 投递前自查清单。
+
+- [八股自测 20 题](./interview/quiz.html) —— HashMap / 锁 / 线程池 / JVM / MySQL / Redis，先自测再针对性补课。
+
 - [学习路线](./roadmap.html) —— 从 Java 基础到分布式与 Agent，一条主线走到底，每个阶段配套专栏文章。
 
 - [HashMap 核心结构](./interview/hashmap-core.html) / [synchronized 锁升级](./interview/synchronized-lock-upgrade.html) —— 先从最高频的两篇开始。
@@ -80,3 +84,5 @@ footer: Copyright © 2022-2026 Loong
 ### 联系我 - 欢迎交流
 
 沉淀、分享、成长，让自己和他人都能有所收获！欢迎通过 [CSDN](https://blog.csdn.net/lqbzlll)（日更主阵地，优先交流）、[GitHub](https://github.com/yxinlong57-spec) 或邮箱（1393260005@qq.com）与我交流，一起学习，共同成长。
+
+订阅本站更新：[RSS](./rss.xml) · [Atom](./atom.xml) ｜ 友链交换：[友情链接](./friends.html)

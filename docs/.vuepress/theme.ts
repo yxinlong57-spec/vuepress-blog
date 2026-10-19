@@ -4,7 +4,8 @@ import navbar from "./navbar.js";
 import sidebar from "./sidebar.js";
 
 export default hopeTheme({
-  hostname: "https://yxinlong57-spec.github.io",
+  // 含 base 路径，sitemap/RSS/canonical 才能生成完整 URL（VPS 根路径部署时需改回不带路径的域名）
+  hostname: "https://yxinlong57-spec.github.io/vuepress-blog",
 
   author: {
     name: "Loong",
@@ -95,6 +96,14 @@ export default hopeTheme({
 
     // 回到顶部按钮
     backToTop: true,
+
+    // RSS/Atom 订阅输出（/rss.xml、/atom.xml、/feed.json）
+    feed: {
+      atom: true,
+      rss: true,
+      json: true,
+      count: 20,
+    },
 
     // Giscus 评论（基于 GitHub Discussions，需安装 giscus app 后生效）
     comment: {

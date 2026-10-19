@@ -30,11 +30,17 @@ export default sidebar({
       text: "简历与求职",
       icon: "file-lines",
       children: [
+        "resume.md",
         "java-backend-resume.md",
         "heima-mall-resume.md",
         "heima-toutiao-resume.md",
         "heima-comment-resume.md",
       ],
+    },
+    {
+      text: "八股自测",
+      icon: "circle-question",
+      children: ["quiz.md"],
     },
   ],
   "/spring/": ["", "auto-configuration.md", "springboot-api-versioning.md"],
@@ -101,6 +107,7 @@ export default sidebar({
   "/": [
     "",
     { text: "阅读指南", icon: "flag", link: "/guide/" },
+    { text: "友情链接", icon: "link", link: "/friends.html" },
     { text: "关于我", icon: "circle-info", link: "/intro.html" },
   ],
 });

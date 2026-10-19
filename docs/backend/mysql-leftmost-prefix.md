@@ -10,6 +10,7 @@ tag:
   - 索引
   - 最左前缀
 order: 1
+star: true
 ---
 
 

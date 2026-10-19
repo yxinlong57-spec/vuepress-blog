@@ -12,7 +12,9 @@
   },
   "devDependencies": {
     "@vuepress/bundler-vite": "2.0.0-rc.31",
+    "@vuepress/plugin-feed": "^2.0.0-rc.31",
     "@vuepress/plugin-search": "^2.0.0-rc.134",
+    "@vuepress/plugin-slimsearch": "^2.0.0-rc.61",
     "sass-embedded": "^1.104.0",
     "vue": "^3.5.42",
     "vuepress": "2.0.0-rc.31",
