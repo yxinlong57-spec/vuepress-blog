@@ -1,5 +1,6 @@
 ---
 title: "Agent 评测不能只看最终答案：轨迹、工具调用和成本的多维度评估框架"
+description: "Agent 评测不能只看最终答案：轨迹、工具调用、成本的多维度评估框架。"
 shortTitle: "Agent 评测方法论"
 date: 2026-10-11
 category:

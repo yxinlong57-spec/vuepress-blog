@@ -1,5 +1,6 @@
 ---
 title: "MCP 工具接入的安全边界：从 Confused Deputy 到最小权限，别把 Agent 变成万能钥匙"
+description: "MCP 工具接入的安全边界：从 Confused Deputy 问题到最小权限设计，别把 Agent 变成万能钥匙。"
 shortTitle: "MCP 安全边界"
 date: 2026-10-05
 category:

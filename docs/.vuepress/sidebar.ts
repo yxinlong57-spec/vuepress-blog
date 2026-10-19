@@ -15,6 +15,7 @@ export default sidebar({
       icon: "layer-group",
       children: [
         "hashmap-core.md",
+        "thread-pool.md",
         "synchronized-lock-upgrade.md",
         "threadlocal-thread-pool.md",
         "completable-future.md",
@@ -36,7 +37,7 @@ export default sidebar({
       ],
     },
   ],
-  "/spring/": ["", "springboot-api-versioning.md"],
+  "/spring/": ["", "auto-configuration.md", "springboot-api-versioning.md"],
   "/backend/": [
     "",
     {
@@ -52,7 +53,7 @@ export default sidebar({
     {
       text: "Redis",
       icon: "bolt",
-      children: ["redis-cache-three-problems.md"],
+      children: ["redis-data-structures.md", "redis-cache-three-problems.md"],
     },
     {
       text: "存储与 IO",

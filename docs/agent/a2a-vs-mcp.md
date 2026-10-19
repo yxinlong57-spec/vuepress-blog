@@ -1,5 +1,6 @@
 ---
 title: "A2A 1.0 到底和 MCP 差在哪：从 Agent Card、Task 到 Java 最小互操作"
+description: "A2A 1.0 和 MCP 到底差在哪：从 Agent Card、Task 状态机到 a2a-java 最小互操作实测。"
 shortTitle: "A2A 与 MCP 边界"
 date: 2026-10-06
 category:

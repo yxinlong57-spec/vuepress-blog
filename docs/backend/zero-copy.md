@@ -1,5 +1,6 @@
 ---
 title: "什么是零拷贝？别被“零”字骗了：一次讲透完整链路"
+description: "别被「零」字骗了：从 read/write 四次拷贝到 sendfile，一次讲透零拷贝的完整链路。"
 shortTitle: "零拷贝"
 date: 2026-10-03
 category:

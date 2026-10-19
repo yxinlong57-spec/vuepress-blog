@@ -1,5 +1,6 @@
 ---
 title: "Java 堆 OOM 怎么复现又怎么定位？从 HeapDumpOnOutOfMemoryError 到 jmap -histo:live"
+description: "把堆限到 96MB 亲手复现 OOM：用 jmap -histo:live 和 HeapDumpOnOutOfMemoryError 定位堆内存大户。"
 shortTitle: "Java 堆 OOM 定位"
 date: 2026-10-16
 category:

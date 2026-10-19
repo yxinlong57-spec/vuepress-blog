@@ -1,5 +1,6 @@
 ---
 title: "Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限"
+description: "Spring AI 工具调用不是反射一下就结束：用 2.0.1 跑通失败恢复与调用上限控制。"
 shortTitle: "Spring AI 工具调用链"
 date: 2026-10-07
 category:

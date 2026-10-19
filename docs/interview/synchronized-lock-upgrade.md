@@ -1,5 +1,6 @@
 ---
 title: "synchronized 的\"锁升级\"到底升了什么？直接读对象头看偏向锁、轻量级锁和重量级锁"
+description: "直接读对象头看 synchronized 锁升级：偏向锁、轻量级锁、重量级锁的触发条件与 Mark Word 变化实测。"
 shortTitle: "synchronized 锁升级"
 date: 2026-10-14
 category:

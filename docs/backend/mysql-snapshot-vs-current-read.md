@@ -1,5 +1,6 @@
 ---
 title: "MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测"
+description: "SELECT 与 SELECT ... FOR UPDATE 并发实测：快照读和当前读的区别与加锁边界。"
 shortTitle: "快照读与当前读"
 date: 2026-10-09
 category:

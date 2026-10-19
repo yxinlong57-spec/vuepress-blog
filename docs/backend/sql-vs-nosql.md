@@ -1,5 +1,6 @@
 ---
 title: "SQL 和 NoSQL 到底怎么选？别再把它们当成非此即彼"
+description: "SQL 和 NoSQL 不是非此即彼：从数据模型、事务能力、扩展方式讲清两者的真实边界与选型。"
 shortTitle: "SQL 与 NoSQL"
 date: 2026-10-03
 category:

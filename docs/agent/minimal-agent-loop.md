@@ -1,5 +1,6 @@
 ---
 title: "不用框架手写一个最小 Agent 循环：最大步数、停止条件和失控熔断怎么设计"
+description: "不用框架手写最小 Agent 循环：最大步数、停止条件和失控熔断的设计要点。"
 shortTitle: "手写最小 Agent 循环"
 date: 2026-10-13
 category:

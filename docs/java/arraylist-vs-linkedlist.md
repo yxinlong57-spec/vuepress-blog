@@ -1,5 +1,6 @@
 ---
 title: "ArrayList 和 LinkedList 怎么选？别只看“插入删除快慢”"
+description: "别再背「ArrayList 查询快、LinkedList 增删快」。从数组与链表结构、缓存局部性讲清两者的真实差距和选型依据。"
 shortTitle: "ArrayList vs LinkedList"
 date: 2026-10-03
 category:

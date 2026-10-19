@@ -19,7 +19,7 @@ article: false
 
 - [x] [HashMap 的核心结构：put、扩容与树化](/interview/hashmap-core.html)
 - [ ] ConcurrentHashMap 源码
-- [ ] 线程池核心参数与执行流程
+- [x] [线程池核心参数与执行流程](/interview/thread-pool.html)
 - [x] [synchronized 锁升级](/interview/synchronized-lock-upgrade.html)
 - [ ] volatile、CAS 与内存可见性 / AQS
 - [x] [ThreadLocal 与线程池：串数据与内存泄漏](/interview/threadlocal-thread-pool.html)
@@ -37,7 +37,7 @@ article: false
 - [ ] IoC 容器与 Bean 生命周期
 - [ ] AOP 与动态代理
 - [ ] 事务传播与失效场景
-- [ ] Spring Boot 自动装配原理
+- [x] [Spring Boot 自动装配原理](/spring/auto-configuration.html)
 - [x] [Spring Boot 4.1 的 API 版本控制](/spring/springboot-api-versioning.html)
 
 ## 阶段五：MySQL 与 Redis
@@ -45,7 +45,7 @@ article: false
 - [x] [MySQL 索引：最左前缀原则](/backend/mysql-leftmost-prefix.html) / [索引失效定位](/backend/mysql-index-failure.html)
 - [x] [MySQL 事务：RR 与 RC 的 ReadView](/backend/mysql-readview-rr-rc.html) / [快照读与当前读](/backend/mysql-snapshot-vs-current-read.html)
 - [ ] MySQL 锁与日志体系
-- [x] [Redis 缓存穿透 / 击穿 / 雪崩](/backend/redis-cache-three-problems.html)
+- [x] [Redis 五种数据结构与应用场景](/backend/redis-data-structures.html) / [缓存穿透 / 击穿 / 雪崩](/backend/redis-cache-three-problems.html)
 - [ ] Redis：持久化、分布式锁
 - [x] [什么是零拷贝](/backend/zero-copy.html) / [SQL 与 NoSQL 怎么选](/backend/sql-vs-nosql.html)
 

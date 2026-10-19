@@ -1,5 +1,6 @@
 ---
 title: "MCP 接入本地工具：把线上消息摊开看握手、tools/call、权限和错误分层"
+description: "MCP 接入本地工具实测：把 initialize、tools/list、tools/call 的握手消息摊开看权限与错误分层。"
 shortTitle: "MCP 接入本地工具"
 date: 2026-10-13
 category:

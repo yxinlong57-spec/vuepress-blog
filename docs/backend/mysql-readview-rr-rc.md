@@ -1,5 +1,6 @@
 ---
 title: "MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测"
+description: "RR 和 RC 的 ReadView 生成时机实测：MySQL 可重复读到底「重复」在哪。"
 shortTitle: "RR 与 RC 的 ReadView"
 date: 2026-10-09
 category:

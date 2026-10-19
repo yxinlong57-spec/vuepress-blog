@@ -1,5 +1,6 @@
 ---
 title: "Agent Skills 为什么不能只是“长提示词”：SKILL.md、按需加载和权限边界"
+description: "Agent Skills 为什么不能只是长提示词：SKILL.md 结构、按需加载和权限边界的工程实践。"
 shortTitle: "Agent Skills 实践"
 date: 2026-10-06
 category:

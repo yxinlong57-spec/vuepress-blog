@@ -13,6 +13,17 @@ export default hopeTheme({
 
   logo: "/logo.svg",
 
+  // 仓库信息（编辑链接 + 最后更新时间）
+  docsRepo: "https://github.com/yxinlong57-spec/vuepress-blog",
+  docsBranch: "main",
+  docsDir: "docs",
+  editLink: true,
+  lastUpdated: true,
+  contributors: false,
+
+  // 文章页头信息
+  pageInfo: ["Author", "Date", "Category", "Tag", "ReadingTime", "Word"],
+
   // 导航栏
   navbar,
 
@@ -59,6 +70,29 @@ export default hopeTheme({
   // 插件
   plugins: {
     blog: true,
+
+    // 最后更新时间依赖 Git 信息
+    git: true,
+
+    // 站内搜索（导航栏搜索框）
+    slimsearch: {
+      indexContent: true,
+    },
+
+    // 代码块一键复制
+    copyCode: {
+      showInMobile: true,
+    },
+
+    // 图片点击放大
+    photoSwipe: true,
+
+    // 文章版权信息（转载自动带原文链接）
+    copyright: {
+      global: true,
+      author: "Loong",
+      license: "CC BY-NC-SA 4.0",
+    },
 
     components: {
       components: ["Badge", "VPCard"],

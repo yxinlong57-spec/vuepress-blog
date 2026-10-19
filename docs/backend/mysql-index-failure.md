@@ -1,5 +1,6 @@
 ---
 title: "MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因"
+description: "用同一张表前后 EXPLAIN 对比，定位 MySQL 索引失效的常见原因：函数、隐式转换、前导模糊匹配。"
 shortTitle: "MySQL 索引失效"
 date: 2026-10-08
 category:

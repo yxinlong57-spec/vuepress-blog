@@ -1,5 +1,6 @@
 ---
 title: "Java Scanner 的 nextLine() 为什么会跳过一行？把输入光标一次讲明白"
+description: "nextInt() 后 nextLine() 为什么读到空字符串？从 Scanner 的 token 读取和光标位置讲清跳行原因与两种修复写法。"
 shortTitle: "Scanner nextLine 跳行"
 date: 2026-10-04
 category:

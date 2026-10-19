@@ -1,5 +1,6 @@
 ---
 title: "AI Agent 入门：新手和转行者先学什么，别一上来就啃框架"
+description: "AI Agent 入门路线：新手和转行者先学什么、别一上来就啃框架，一份务实的学习顺序。"
 shortTitle: "AI Agent 入门"
 date: 2026-10-04
 category:

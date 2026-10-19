@@ -1,5 +1,6 @@
 ---
 title: 从 0 搭建 VuePress 博客并自动化部署
+description: "从 0 搭建 VuePress 2 + theme-hope 博客：GitHub Actions 自动部署 GitHub Pages 与 VPS 双通道全过程。"
 icon: blog
 date: 2026-10-18
 category:

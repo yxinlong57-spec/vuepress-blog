@@ -1,5 +1,6 @@
 ---
 title: "黑马点评简历怎么写？别只堆缓存三兄弟，给出一份能追问的 Redis 项目模板"
+description: "黑马点评简历怎么写？别只堆缓存三兄弟，一份能经得起追问的 Redis 项目模板。"
 shortTitle: "黑马点评简历包装"
 date: 2026-10-03
 category:

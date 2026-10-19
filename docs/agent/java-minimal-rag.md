@@ -1,5 +1,6 @@
 ---
 title: "用 Java 手写一个最小 RAG：从文档切分、向量检索到 Prompt 拼接的完整链路"
+description: "用 Java 手写一个最小 RAG：文档切分、向量检索到 Prompt 拼接的完整链路。"
 shortTitle: "Java 最小 RAG"
 date: 2026-10-11
 category:

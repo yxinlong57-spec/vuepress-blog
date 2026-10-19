@@ -12,7 +12,7 @@ dir:
 
 ## 📌 已收录
 
-- **集合与并发**：HashMap 核心结构、synchronized 锁升级、ThreadLocal 与线程池、CompletableFuture 异常与超时
+- **集合与并发**：HashMap 核心结构、线程池核心参数、synchronized 锁升级、ThreadLocal 与线程池、CompletableFuture 异常与超时
 - **JVM 实战**：Java 堆 OOM 复现与定位
 - **简历与求职**：Java 后端简历怎么写 + 黑马三件套项目简历包装
 

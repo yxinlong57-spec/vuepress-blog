@@ -1,5 +1,6 @@
 ---
 title: "多 Agent 什么时候值得用：单 Agent、固定 Workflow、多 Agent 的一次成本实测"
+description: "单 Agent、固定 Workflow、多 Agent 一次成本实测：多 Agent 什么时候才值得用。"
 shortTitle: "多 Agent 架构对比"
 date: 2026-10-13
 category:

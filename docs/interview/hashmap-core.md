@@ -1,5 +1,6 @@
 ---
 title: "HashMap 的核心结构：从一次 put 看到扩容、桶迁移与树化边界"
+description: "从一次 put 调用看 HashMap 核心结构：扰动函数、桶定位、链表树化阈值与扩容迁移全过程。"
 shortTitle: "HashMap 核心结构"
 date: 2026-10-05
 category:

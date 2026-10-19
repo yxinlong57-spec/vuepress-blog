@@ -1,5 +1,6 @@
 ---
 title: "Java 项目接大模型：Spring AI 和 LangChain4j 先比较什么（选型实测视角）"
+description: "Java 项目接大模型先比较什么：Spring AI 与 LangChain4j 的选型实测视角。"
 shortTitle: "Spring AI vs LangChain4j"
 date: 2026-10-13
 category:

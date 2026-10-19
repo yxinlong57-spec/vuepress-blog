@@ -1,5 +1,6 @@
 ---
 title: "CompletableFuture 的异常和超时怎么处理？get/join、exceptionally/handle、orTimeout 一次实测"
+description: "get/join、exceptionally/handle、orTimeout 一次实测：CompletableFuture 异常传递与超时处理的正确姿势。"
 shortTitle: "CompletableFuture 异常与超时"
 date: 2026-10-15
 category:

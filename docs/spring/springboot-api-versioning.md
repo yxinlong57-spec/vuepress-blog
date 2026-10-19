@@ -1,5 +1,6 @@
 ---
 title: "Spring Boot 4.1 的 API 版本控制：Header、Query、路径和 Media Type 到底怎么选"
+description: "Spring Boot 4.1 的 API 版本控制：Header、Query、路径、Media Type 四种方案实测对比与选型建议。"
 shortTitle: "API 版本控制"
 date: 2026-10-07
 category:

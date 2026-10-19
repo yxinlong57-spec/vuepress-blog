@@ -1,5 +1,6 @@
 ---
 title: "最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测"
+description: "联合索引、范围查询和 ORDER BY 一次实测：最左前缀原则到底约束了什么。"
 shortTitle: "最左前缀原则"
 date: 2026-10-08
 category:

@@ -1,5 +1,6 @@
 ---
 title: "Function Calling 参数为什么校验失败：从 Schema、类型到错误信息的完整排查"
+description: "Function Calling 参数为什么校验失败：从 JSON Schema、类型系统到错误信息的完整排查链。"
 shortTitle: "Function Calling 参数校验"
 date: 2026-10-13
 category:

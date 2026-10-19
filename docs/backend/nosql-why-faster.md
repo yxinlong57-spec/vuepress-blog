@@ -1,5 +1,6 @@
 ---
 title: "为什么 NoSQL 查询更快？答案不在数据库名字里"
+description: "NoSQL 查询更快？答案不在名字里：内存存储、数据结构和避免 JOIN 的工程取舍。"
 shortTitle: "NoSQL 为什么查询快"
 date: 2026-10-03
 category:

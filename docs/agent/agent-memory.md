@@ -1,5 +1,6 @@
 ---
 title: "Agent 的记忆工程：上下文窗口、短期会话和长期记忆到底怎么分工"
+description: "上下文窗口、短期会话和长期记忆到底怎么分工：Agent 记忆工程的分层设计。"
 shortTitle: "Agent 记忆工程"
 date: 2026-10-05
 category:

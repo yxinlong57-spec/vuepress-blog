@@ -1,5 +1,6 @@
 ---
 title: "Java 后端简历怎么写？附一份可直接参考的完整草稿"
+description: "Java 后端简历怎么写？项目描述、技术栈、自我评价逐段拆解，附一份可直接参考的完整草稿。"
 shortTitle: "Java 后端简历怎么写"
 date: 2026-10-03
 category:

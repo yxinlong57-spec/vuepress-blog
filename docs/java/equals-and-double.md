@@ -1,5 +1,6 @@
 ---
 title: "Java 的 == 和 equals 到底有什么区别？用 String、Integer 和自定义对象一次讲清"
+description: "用 String、Integer 和自定义对象实测 == 与 equals 的差异：常量池、装箱缓存、hashCode 成对重写，附判断路径图。"
 shortTitle: "== 和 equals 的区别"
 date: 2026-10-04
 category:

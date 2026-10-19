@@ -1,5 +1,6 @@
 ---
 title: "ThreadLocal 在线程池里为什么会串数据？一次复现看懂复用和内存泄漏"
+description: "ThreadLocal 在线程池里为什么会串数据？一次复现看懂线程复用、remove 的必要性和内存泄漏根因。"
 shortTitle: "ThreadLocal 与线程池"
 date: 2026-10-15
 category:

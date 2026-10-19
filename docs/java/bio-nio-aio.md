@@ -1,5 +1,6 @@
 ---
 title: "BIO、NIO、AIO 到底差在哪？从阻塞方式到代码模型一次理清"
+description: "从阻塞方式到代码模型一次理清 BIO、NIO、AIO：最小 TCP 回显示例对比三种 IO 的线程模型与适用场景。"
 shortTitle: "BIO / NIO / AIO"
 date: 2026-10-02
 category:
