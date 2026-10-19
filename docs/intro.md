@@ -21,14 +21,14 @@ title: 关于我
 
 本站「Loong 龙栈 LoongStack」是我的知识库，按专栏组织：
 
-- **[Java 基础](/java/)**：语言层的每个「为什么」
-- **[面经手册](/interview/)**：面试八股 + 底层原理 + 简历求职
-- **[Spring 实战](/spring/)**：核心原理与整合案例
-- **[后端进阶](/backend/)**：MySQL、Redis、存储与 IO
-- **[Agent 探索](/agent/)**：Java 玩家的大模型应用之路
-- **[项目实战](/projects/)**：从 0 到 1 的项目复盘
+- **[Java 基础](./java/)**：语言层的每个「为什么」
+- **[面经手册](./interview/)**：面试八股 + 底层原理 + 简历求职
+- **[Spring 实战](./spring/)**：核心原理与整合案例
+- **[后端进阶](./backend/)**：MySQL、Redis、存储与 IO
+- **[Agent 探索](./agent/)**：Java 玩家的大模型应用之路
+- **[项目实战](./projects/)**：从 0 到 1 的项目复盘
 
-本站基于 VuePress 2 + vuepress-theme-hope 搭建，通过 GitHub Actions 自动构建部署，源码开源于 [GitHub](https://github.com/yxinlong57-spec/vuepress-blog)，搭建过程记录在[这篇](/projects/vuepress-blog.html)。
+本站基于 VuePress 2 + vuepress-theme-hope 搭建，通过 GitHub Actions 自动构建部署，源码开源于 [GitHub](https://github.com/yxinlong57-spec/vuepress-blog)，搭建过程记录在[这篇](./projects/vuepress-blog.html)。
 
 ## 🎯 一句话信条
 
