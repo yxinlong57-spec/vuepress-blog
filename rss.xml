@@ -6,14 +6,191 @@
     <link>https://yxinlong57-spec.github.io/vuepress-blog/</link>
     <description>LoongStack：Java 后端打底，Agent 应用探路——Java 基础、并发、JVM、MySQL、Redis、Spring 实战、Agent / LLM 应用开发，一个计算机学生的技术成长路线。</description>
     <language>zh-CN</language>
-    <pubDate>Mon, 19 Oct 2026 06:29:51 GMT</pubDate>
-    <lastBuildDate>Mon, 19 Oct 2026 06:29:51 GMT</lastBuildDate>
+    <pubDate>Mon, 19 Oct 2026 07:08:33 GMT</pubDate>
+    <lastBuildDate>Mon, 19 Oct 2026 07:08:33 GMT</lastBuildDate>
     <generator>@vuepress/plugin-feed</generator>
     <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
-    <category>面经手册</category>
     <category>Agent</category>
-    <category>MySQL</category>
-    <category>存储与 IO</category>
+    <category>面经手册</category>
+    <item>
+      <title>Agent 可观测性：用纯 Java 给 Agent 装上追踪、指标和一张成本账单</title>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-observability.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/agent-observability.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Agent 可观测性：用纯 Java 给 Agent 装上追踪、指标和一张成本账单</source>
+      <description>Agent 上线后说不清哪一步变慢、变贵、变蠢。本文用纯 JDK 手写 Span 树、指标聚合和成本账本，并真跑四个场景验证失败归因。</description>
+      <category>Agent</category>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<blockquote>
+<p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin）<br>
+说明：文中所有代码与运行输出均为本机真实执行结果（纯 JDK 单文件，<code>java Main.java</code>）。模型调用用按脚本输出的 MockLLM 代替，延迟用随机 30～60ms 的真实 <code>Thread.sleep</code> 模拟，因此耗时数字每次运行略有浮动，其余逻辑（Span 结构、父子关系、token 估算、成本计算、超时与熔断）全部真实实现。第五节涉及的生产生态（Spring AI / OpenTelemetry / Langfuse / ARMS）为官方文档结论，未在本机验证。</p>
+</blockquote>
+<p><strong>目录</strong></p>
+<ul>
+<li>一、Agent 为什么比普通服务更难观测</li>
+<li>二、一轮 Agent 运行要采集的三类信号</li>
+<li>三、用纯 Java 手写一个可观测层</li>
+<li>四、实测：四个场景的完整 Span 树与成本账单</li>
+<li>五、对接生产生态：Spring AI、OpenTelemetry 与后端</li>
+<li>六、六个常见坑</li>
+<li>七、面试怎么答</li>
+<li>小结</li>
+<li>参考资料</li>
+</ul>
+<h2>一、Agent 为什么比普通服务更难观测</h2>
+<p>先说一个很多人遇到过但说不清楚的场景：Agent 上线两周，账单比预估高了 40%，P95 延迟从 8 秒涨到 23 秒，用户投诉&quot;有时候答得莫名其妙&quot;。你翻日志，只能看到一长串 <code>llm call</code>、<code>tool call</code> 和几百行提示词，既看不出这 40% 花在哪一步，也看不出那 23 秒卡在模型还是工具。问题不是日志不够多，而是<strong>日志是线性的，而 Agent 的执行是树形的</strong>。本文的路子是：先定义一轮运行要采集的三类信号，再用纯 JDK 手写一个可观测层并真跑四个场景，最后讲清它怎么映射到 Spring AI、OpenTelemetry 上。</p>
+<p>普通 Java 服务的可观测性早就被解决了：一次 HTTP 请求对应一条 trace，Span 是&quot;Controller → Service → DAO&quot;这种固定且有限的形状，指标用 Micrometer 打点，成本就是 CPU 和内存。Agent 把这一切都搅乱了，具体乱在四个地方。</p>
+<p><strong>第一，非确定性让&quot;复现&quot;失效。</strong> 普通服务出 bug，你可以拿同一个请求重放，看它稳定复现。Agent 同一个输入跑两次，工具调用顺序、步数、甚至答案都可能不同。你不能靠&quot;再跑一次&quot;来定位问题，只能靠<strong>留痕</strong>：把每一次真实运行的完整轨迹存下来回头看。</p>
+<p><strong>第二，一次用户请求 = 一串子调用。</strong> 一轮 Agent 循环可能包含 4 次模型调用和 3 次工具调用，工具内部还可能再调一次向量检索。它们的耗时不是相加的关系，而是包含和嵌套的关系。用 <code>System.out.println</code> 打平铺日志，你会丢掉&quot;哪次工具调用属于哪一步推理&quot;这层结构。</p>
+<p><strong>第三，计费维度在服务端不可见。</strong> 一个 Java 方法调用不会产生&quot;费用&quot;这种属性。但模型调用会——按输入 token 和输出 token 分别计价，而 token 数量取决于上下文有多长。要在 Java 侧算清这笔账，必须自己把每次模型调用的 token 用量记下来，再乘模型单价。</p>
+<p><strong>第四，工具调用带副作用。</strong> 查天气这种工具失败了无非是重试，但&quot;下单&quot;&quot;发消息&quot;&quot;写库&quot;失败了，重试可能造成重复副作用。这意味着工具 Span 上还要带上幂等键、重试次数这类属性，失败归因也不能只看&quot;有没有抛异常&quot;。</p>
+<p>把这四条对照普通微服务，差异就很清楚：</p>
+<p>| 维度 | 普通 Java 服务 | Agent 服务 |<br>
+|</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Agentic RAG：从「检索一次就回答」到手写自适应检索（改写、混合召回、重排、自我纠错）</title>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/agentic-rag.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/agentic-rag.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Agentic RAG：从「检索一次就回答」到手写自适应检索（改写、混合召回、重排、自我纠错）</source>
+      <description>朴素 RAG 只做一次向量召回、无条件相信 Top-K，常出现召回不全、排序不准、答不出来硬答。本文用纯 Java 手写查询改写、混合召回、重排与充分性纠错循环，实测四层改造的逐级收益。</description>
+      <category>Agent</category>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<p>前一篇<a href="/vuepress-blog/agent/java-minimal-rag.html" target="_blank">《用 Java 手写一个最小 RAG》</a>把 RAG 的五个环节跑通了，但它覆盖的只是最朴素的形态：一次向量召回、取 Top-K、直接拼 Prompt。这种实现有三宗罪——<strong>召回不全</strong>（相关信息压根没进候选集）、<strong>排序不准</strong>（进了候选集但排在后面被截掉）、<strong>答不对也不会说不会</strong>（库里没有答案照样编一个）。前两宗是检索质量问题，第三宗是流程问题：朴素 RAG 里没有任何一步负责判断&quot;证据够不够&quot;。核心结论很直接：这三宗罪靠换更好的嵌入模型只能缓解一小部分，真正的解法是在检索外面加一层控制——查询改写做多路召回、关键词与向量混合、对候选重排、对证据做充分性判断并在不足时再来一轮。</p>
+<p>这一层控制就是 <strong>Agentic RAG</strong>（自适应检索）与朴素 RAG 的本质差别：检索从「一次性动作」变成「可循环、可判断、可放弃」的过程。下面用纯 Java 把这条流水线手写出来并真实跑一遍：同一批 5 个问题，分别走①朴素单次检索、②混合召回、③混合召回+多查询改写+RRF 融合、④再加一轮自我纠错循环，看每一层分别修好了哪类问题。</p>
+<p><strong>目录</strong></p>
+<ul>
+<li>一、朴素 RAG 的边界在哪</li>
+<li>二、Agentic RAG 的四个改造点</li>
+<li>三、纯 Java 手写这条流水线</li>
+<li>四、实测：5 个问题 × 4 种方案</li>
+<li>五、成本与延迟：多一轮检索值不值</li>
+<li>六、四个容易踩的坑</li>
+<li>七、面试官视角怎么答</li>
+<li>小结</li>
+<li>参考资料</li>
+</ul>
+<blockquote>
+<p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin）<br>
+说明：本文的 LLM 用按脚本输出的 Mock 代替（改写脚本、回答文本都写死在代码里），保证实验可复现；<strong>向量通道用固定概念向量模拟</strong>（原因在第三节说明），其余逻辑——分词、BM25 打分、RRF 融合、规则重排、充分性判断、纠错循环——全部是真实实现。代码是单个 <code>Main.java</code>，<code>java Main.java</code> 直接可跑。</p>
+</blockquote>
+<h2>一、朴素 RAG 的边界在哪</h2>
+<p>先给上一篇文章的结论收个尾：<strong>朴素 RAG 的边界，就是&quot;检索一次&quot;这四个字</strong>。</p>
+<p>我把它拆成四个具体的边界，每一条都会在后面的实测里出现。</p>
+<p><strong>边界一：单次召回，一次定生死。</strong> 用户的问题只被当成一次查询用掉。问题措辞和文档措辞对不上（用户说&quot;用词对不上怎么办&quot;，文档写&quot;词汇鸿沟&quot;），这一枪打空就没有第二次机会。实测里的 Q3 就是这种情况：目标片段 D9 在朴素方案的 Top-2 里完全没有出现——不是&quot;差一点&quot;被截掉，而是压根没进候选。</p>
+<p><strong>边界二：单一检索通道。</strong> 只用向量。向量擅长语义相似，但对精确术语、代号、数字这类&quot;低频但决定性&quot;的词元不敏感。反过来，关键词检索（BM25）擅长精确匹配但对同义改写无能为力。只用一个通道，就等于把另一类问题的命中率直接放弃。</p>
+<p><strong>边界三：无条件相信检索结果。</strong> Top-K 检索有个天然缺陷：不管你问什么，它总能返回 K 条。库里没有答案时，它返回的是 K 条噪声，而朴素 RAG 会把噪声当证据塞进 Prompt。实测里的 Q5（问公司年假折算标准，语料库里根本没有这类片段）在方案①下依然&quot;答&quot;出来了——因为从流程上看，没有任何一步会去质疑检索结果。</p>
+<p><strong>边界四：没有充分性判断，也就没有&quot;说不会&quot;的出口。</strong> 上一篇文章在 Prompt 里写了&quot;资料里没有就说不知道&quot;，这是把判断权交给模型自觉。实测结果很直接：Q5 方案①下，Mock LLM 依据两条完全不相干的片段，给出了&quot;未休年假按日工资的 200% 折算&quot;这样一个听起来很合理的错误答案。约束写在 Prompt 里不等于流程里有闸门。</p>
+<p>把这四条合起来看，朴素 RAG 的问题不是&quot;某个参数没调好&quot;，而是<strong>流程里缺少决策环节</strong>：没有决定&quot;换个问法再查一次&quot;的环节，没有决定&quot;多通道一起查&quot;的环节，没有决定&quot;证据够不够、要不要放弃&quot;的环节。补上这些环节，就是 Agentic RAG。</p>
+<h2>二、Agentic RAG 的四个改造点</h2>
+<p>Agentic RAG 这个词最近很热，但落地时它并不神秘。相对于朴素 RAG，能加的控制点主要是四个，按&quot;改造成本从低到高&quot;排列：</p>
+<p>| 改造点 | 解决哪条边界 | 具体做法 | 引入的额外开销 |<br>
+|</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>上下文工程实战：给 Agent 做上下文预算、压缩与分层，把长会话的成本和跑偏一起治住</title>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/context-engineering.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/context-engineering.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">上下文工程实战：给 Agent 做上下文预算、压缩与分层，把长会话的成本和跑偏一起治住</source>
+      <description>长会话越聊越贵、越聊越跑偏，问题常出在上下文没管好。本文用纯 JDK 写上下文管理器，实测 token 预算、摘要压缩、工具结果裁剪与按需注入，给出可落地阈值。</description>
+      <category>Agent</category>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<blockquote>
+<p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin），纯 JDK 单文件，无第三方依赖<br>
+说明：本文第三、四节的 Java 代码全部真实运行，命令与输出都贴在本机结果里；第一节引用的 Anthropic、Chroma 结论来自官方文章和技术报告，属于「官方文档结论，未在本机验证」，来源链接在文末给出。</p>
+</blockquote>
+<p><strong>目录</strong></p>
+<ul>
+<li>一、长会话为什么越聊越贵、越聊越跑偏</li>
+<li>二、四个能落地的上下文机制</li>
+<li>三、手写一个上下文管理器：token 估算、分层、压缩、裁剪</li>
+<li>四、四个场景的实测输出</li>
+<li>五、常见坑与边界</li>
+<li>六、面试官视角：上下文工程会怎么问</li>
+<li>小结</li>
+<li>参考资料</li>
+</ul>
+<h2>一、长会话为什么越聊越贵、越聊越跑偏</h2>
+<p>多轮 Agent 会话跑到二十几轮之后，通常会出现两个同时发生的现象：账单在涨，答案在飘。成本上涨很好理解，每一轮都要把此前所有历史重新作为输入送进模型，输入 token 随轮数近似线性累积；假设每轮净增 300 token 历史，第 30 轮的输入大约是 9000 token，其中绝大部分是前面 29 轮内容的重复。</p>
+<p>「答案在飘」的原因就没那么直观了。很多人的第一反应是「上下文窗口不够大，换个长上下文模型就行」，但真正的问题往往相反——不是窗口太小装不下，而是窗口里的东西太多太杂，模型用不过来。</p>
+<p>Anthropic 在《Effective context engineering for AI agents》里把这件事说得很直接：上下文是一种有限资源，模型在解析大段上下文时消耗的是一种「注意力预算」（attention budget），每一个新 token 都会消耗掉一部分，回报是递减的；而且这种衰减来自 Transformer 架构本身——n 个 token 之间存在 n² 对两两关系，上下文越长，这种两两关系越被摊薄（官方文档结论，未在本机验证）。</p>
+<p>另一份更能量化的证据来自 Chroma Research 的《Context Rot》：他们用 18 个前沿模型跑了 194480 次调用，发现在基础检索、文本复制这类简单任务上，随着输入变长，模型准确率会系统性下降，而且早在窗口塞满之前就开始了；信息放在哪里、怎么排列，比「在不在里面」更重要（官方报告结论，未在本机验证）。</p>
+<p>把这两条合起来看，长会话的症状、表层归因和真实机制大致是这样：</p>
+<p>| 症状 | 常见表层归因 | 真实机制 |<br>
+|</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>从会用到会写：用 Java 实现一个符合 MCP 规范的 Server，并在本机跑通一把</title>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-server-java.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/mcp-server-java.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">从会用到会写：用 Java 实现一个符合 MCP 规范的 Server，并在本机跑通一把</source>
+      <description>只会装现成 MCP Server 不够用：用纯 JDK 手写一个符合规范的 MCP Server，真实跑通 initialize、tools/list、tools/call，附完整报文与踩坑。</description>
+      <category>Agent</category>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<blockquote>
+<p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin）<br>
+说明：Server 与客户端都是纯 JDK 单文件（<code>java X.java</code> 直接运行，无第三方依赖），客户端通过 <code>ProcessBuilder</code> 拉起 Server 子进程，走真实 stdio 收发报文。本文实现的是握手时代的 2025-06-18 版协议；未在本机验证的部分会单独标注。</p>
+</blockquote>
+<p><strong>目录</strong></p>
+<ul>
+<li>一、MCP 解决什么问题：Server 站在协议的哪一侧</li>
+<li>二、最小可用协议面：握手、能力声明、tools/list、tools/call</li>
+<li>三、手写 Server：帧处理、极简 JSON、路由与两个工具</li>
+<li>四、跑通：initialize → tools/list → tools/call 的真实报文</li>
+<li>五、补两个实验：版本协商与坏参数</li>
+<li>六、接进真实 Agent：它怎么被加载，和 Function Calling 怎么分工</li>
+<li>七、生产化要点：日志、错误、超时、校验</li>
+<li>八、常见坑：五个真实踩到的问题</li>
+<li>九、面试视角怎么答</li>
+<li>小结</li>
+<li>参考资料</li>
+</ul>
+<h2>一、MCP 解决什么问题：Server 站在协议的哪一侧</h2>
+<p>我的入口问题很具体：想给内部订单系统加一个「能被 Agent 调用」的接口。现成的 MCP Server 能连 GitHub、能读本地文件、能查网页，但没人替我读自家订单表。装一个 Server 我会，写一个 Server 我不会——更麻烦的是，SDK 帮我封装得太好，我说不清线上到底跑了什么报文，出问题只能在 SDK 日志里碰运气。</p>
+<p>先把结论放在开头：<strong>MCP Server 在协议层面不神秘。stdio 传输上它就是「一行一条 JSON-RPC 2.0 报文」的服务端，最小可用面只有 initialize、tools/list、tools/call 三个方法，外加一条 initialized 通知。</strong> 一个单文件 Java 程序，不引任何依赖，就能实现它，并且在真实的父子进程通信里跑通。</p>
+<p>本文路线：先划清 MCP 和 Function Calling 的边界，再抽出最小协议面，然后写完整的 Server 和极简 Client 并贴出真实报文，最后讲清生产化要点和坑。</p>
+<p>角色边界要先摆正，否则后面所有报文都会理解错：</p>
+<p>| 维度 | Function Calling | MCP |<br>
+|</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Agent 工作流编排：用 Java 手写一个带状态、检查点和人工介入的图编排引擎</title>
+      <link>https://yxinlong57-spec.github.io/vuepress-blog/agent/workflow-orchestration.html</link>
+      <guid>https://yxinlong57-spec.github.io/vuepress-blog/agent/workflow-orchestration.html</guid>
+      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">Agent 工作流编排：用 Java 手写一个带状态、检查点和人工介入的图编排引擎</source>
+      <description>用纯 JDK 手写一个图编排引擎：状态图、条件边、检查点落盘、人工介入中断恢复和最大步数兜底，并跑通客服工单分诊案例。</description>
+      <category>Agent</category>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
+      <content:encoded><![CDATA[<blockquote>
+<p>环境：Windows 11、OpenJDK 11.0.32.1（Temurin）<br>
+说明：本文的图编排引擎是纯 JDK 单文件实现（无第三方依赖，<code>java WorkflowDemo.java</code> 可直接运行），下面的运行输出都是本机真实执行结果。案例里的&quot;模型&quot;用关键词匹配的 MockLLM 代替，保证可复现；换成真实模型 API 时，只有节点内部换调用，引擎部分一行不用改。LangGraph4j、Spring AI 等框架的 API 概念来自官方文档与官方仓库，<strong>未在本机运行验证</strong>，文中已逐处标注。</p>
+</blockquote>
+<p>用 while 循环跑 Agent 一开始很顺，直到你开始加需求：退款类工单要先人工审核、咨询类要直接查知识库；某一步失败要重试两次；审核要等外部人点了&quot;通过&quot;才能继续；服务重启后任务得从断的地方接着跑。这些需求最后全挤进同一个循环体里——分支判断夹在工具调用之间，重试计数和审批状态散在七八个变量里，进程一重启，&quot;跑到哪一步了&quot;直接丢失。</p>
+<p>我的结论是：把编排从循环里抽出来，做成一张<strong>状态图 + 检查点</strong>。节点只做一件小事、只返回状态&quot;增量&quot;；边负责决定下一步去哪；每执行一步就把状态存成检查点；人工介入不再是特殊逻辑，而是&quot;中断后从检查点恢复&quot;。这篇用纯 JDK 手写一个两百行左右的图编排引擎，真实跑通条件路由、检查点落盘、中断恢复和最大步数兜底，再用它搭一个客服工单分诊工作流。</p>
+<p><strong>目录</strong></p>
+<ul>
+<li>一、循环式 Agent 还是工作流：先做取舍</li>
+<li>二、图编排的四个基本概念</li>
+<li>三、手写最小图编排引擎</li>
+<li>四、人工介入：中断、检查点与恢复</li>
+<li>五、案例：客服工单分诊工作流</li>
+<li>六、和 LangGraph4j、Spring AI 生态对照</li>
+<li>七、常见坑</li>
+<li>八、面试视角</li>
+<li>小结</li>
+</ul>
+<h2>一、循环式 Agent 还是工作流：先做取舍</h2>
+<p>多 Agent 那篇文章里我用成本结构回答了&quot;单 Agent / 固定 Workflow / 多 Agent 怎么选&quot;，这里补另一半：<strong>可控性和自主性怎么选</strong>。</p>
+<p>循环式 Agent 的核心是：模型自己决定下一步调什么工具、调几次、什么时候停。它擅长&quot;步骤事先不知道&quot;的任务，代价是行为不可预测——同一句话两次运行的路径可能不同，出错点也不固定。</p>
+<p>工作流（workflow）反过来：流程由人画成一张图，模型只在被指定的节点里干活（分类、总结、生成答复），往哪走由边决定。它的优势是<strong>每一步都看得见、可复现、可审计</strong>，代价是流程形状必须事先想清楚。</p>
+<p>这两者不是对立选项，而是一条光谱：</p>
+<p>| 维度 | 循环式 Agent | 图工作流 |<br>
+|</p>
+]]></content:encoded>
+    </item>
     <item>
       <title>面经八股自测 20 题</title>
       <link>https://yxinlong57-spec.github.io/vuepress-blog/interview/quiz.html</link>
@@ -999,443 +1176,6 @@
 <p>LangChain4j 是 <code>ChatModel</code> 接口加 <code>AiServices</code> 声明式层。注意一个真实的版本坑：<strong>LangChain4j 在 1.0 把沿用多年的 <code>ChatLanguageModel</code> 接口改名为 <code>ChatModel</code></strong>，网上大量 2024 年及以前的教程还在用旧名字，照抄会在新版本上编译失败。这类&quot;接口改名&quot;在两个框架的快速迭代期都发生过，选型时要看的不只是功能，还有团队愿意承受的版本跟进成本。</p>
 <p>抽象层的实际差异：</p>
 <p>| 维度 | Spring AI | LangChain4j |<br>
-|</p>
-]]></content:encoded>
-    </item>
-    <item>
-      <title>MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-index-failure.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-index-failure.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MySQL 索引为什么会失效？用同一张表前后 EXPLAIN 定位原因</source>
-      <description>用同一张表前后 EXPLAIN 对比，定位 MySQL 索引失效的常见原因：函数、隐式转换、前导模糊匹配。</description>
-      <category>MySQL</category>
-      <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
-      <content:encoded><![CDATA[<p>实验环境：Windows 11，MySQL Community Server 8.0.45，<code>utf8mb4</code> 字符集，InnoDB 表，人工造数 100000 行。本文中的行数、访问类型和耗时均来自这一轮本地实验，换一份数据后需要重新执行 <code>EXPLAIN</code>。</p>
-<h2>目录</h2>
-<ul>
-<li><a href="#%E5%85%88%E5%AE%9A%E4%B9%89%E4%BB%80%E4%B9%88%E5%8F%AB%E7%B4%A2%E5%BC%95%E5%A4%B1%E6%95%88">先定义什么叫“索引失效”</a></li>
-<li><a href="#%E5%AE%9E%E9%AA%8C%E8%A1%A8%E4%B8%8E%E7%B4%A2%E5%BC%95%E8%AE%BE%E8%AE%A1">实验表与索引设计</a></li>
-<li><a href="#%E5%9C%BA%E6%99%AF%E4%B8%80%E5%87%BD%E6%95%B0%E5%8C%85%E4%BD%8F%E7%B4%A2%E5%BC%95%E5%88%97">场景一：函数包住索引列</a></li>
-<li><a href="#%E5%9C%BA%E6%99%AF%E4%BA%8C%E5%89%8D%E5%AF%BC%E7%99%BE%E5%88%86%E5%8F%B7%E8%AE%A9-like-%E5%A4%B1%E5%8E%BB%E8%B5%B7%E7%82%B9">场景二：前导百分号让 LIKE 失去起点</a></li>
-<li><a href="#%E5%9C%BA%E6%99%AF%E4%B8%89%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%BC%BA%E5%B0%91%E5%89%8D%E5%AF%BC%E5%88%97">场景三：联合索引缺少前导列</a></li>
-<li><a href="#%E5%9C%BA%E6%99%AF%E5%9B%9Bor-%E7%9A%84%E4%B8%80%E4%BE%A7%E6%B2%A1%E6%9C%89%E5%8F%AF%E7%94%A8%E7%B4%A2%E5%BC%95">场景四：OR 的一侧没有可用索引</a></li>
-<li><a href="#%E5%9C%BA%E6%99%AF%E4%BA%94%E7%B4%A2%E5%BC%95%E5%8F%AF%E7%94%A8%E4%BD%86%E4%BC%98%E5%8C%96%E5%99%A8%E9%80%89%E6%8B%A9%E5%85%B6%E4%BB%96%E6%89%AB%E6%8F%8F">场景五：索引可用，但优化器选择其他扫描</a></li>
-<li><a href="#%E7%94%A8-explain-%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D%E5%8E%9F%E5%9B%A0">用 EXPLAIN 快速定位原因</a></li>
-<li><a href="#%E4%BF%AE%E5%A4%8D%E6%97%B6%E4%B8%8D%E8%A6%81%E5%8F%AA%E7%9B%AF%E7%9D%80%E6%9C%89%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95">修复时不要只盯着“有没有索引”</a></li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
-</ul>
-<h2>先定义什么叫“索引失效”</h2>
-<p><code>EXPLAIN</code> 里没有看到目标索引，并不等于索引设计一定错了。MySQL 的优化器会先判断一条谓词是否能形成有效的索引访问路径，再估算不同候选路径的成本。排查时要分清两件事：谓词是否让索引根本不可用，以及索引可用但优化器为什么没有选它。</p>
-<p>这轮实验用同一张订单表复现了五类现象，结论是：函数包列和前导百分号会破坏普通索引的定位能力；联合索引缺少前导列时无法从后一列直接 seek；<code>OR</code> 的一侧没有访问路径时整体可能退化为扫描；而覆盖范围接近全表时，优化器扫描覆盖索引也可能比回表更便宜。</p>
-<h2>实验表与索引设计</h2>
-<p>核心表结构如下：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">CREATE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TABLE</span><span style="--shiki-light:#4078F2;--shiki-dark:#61AFEF"> orders</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  id </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">BIGINT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> UNSIGNED </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> AUTO_INCREMENT,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  user_id </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">BIGINT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  status</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TINYINT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  amount </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">DECIMAL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">10</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">2</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  created_at </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">DATETIME</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  remark </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VARCHAR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">80</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  PRIMARY KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (id),</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> idx_user_status_created (user_id, </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">status</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, created_at),</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> idx_created_at (created_at),</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> idx_remark (remark)</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) ENGINE </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> InnoDB;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>人工数据覆盖 5000 个用户、4 种状态和 30 天时间范围，<code>remark</code> 中约千分之一是 <code>INVOICE-URGENT-*</code>。执行 <code>ANALYZE TABLE orders</code> 后，<code>SELECT COUNT(*)</code> 返回 100000。<code>EXPLAIN</code> 的 <code>rows</code> 是优化器估算，本机实际行数只认 <code>COUNT(*)</code>；同一实验里 <code>information_schema.TABLES.TABLE_ROWS</code> 曾显示 99951。</p>
-<h2>场景一：函数包住索引列</h2>
-<p>下面这条查询看起来只是按日期筛选，<code>created_at</code> 也确实有索引：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">EXPLAIN</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id, user_id, </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">status</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, created_at</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> orders</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> DATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(created_at) </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379"> '2026-01-15'</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>关键输出如下：</p>
-<p>| type | possible_keys | key | key_len | rows | Extra |<br>
-|</p>
-]]></content:encoded>
-    </item>
-    <item>
-      <title>最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-leftmost-prefix.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-leftmost-prefix.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">最左前缀原则到底约束了什么？联合索引、范围和 ORDER BY 的一次实测</source>
-      <description>联合索引、范围查询和 ORDER BY 一次实测：最左前缀原则到底约束了什么。</description>
-      <category>MySQL</category>
-      <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
-      <content:encoded><![CDATA[<p>实验环境：Windows 11，MySQL Community Server 8.0.45，<code>utf8mb4</code> 字符集，InnoDB 表，人工造数 100000 行。表上只有一个联合索引 <code>idx_user_event_time(user_id, event_type, created_at)</code>，本文用它观察范围访问、排序和覆盖索引。不同数据分布下优化器可能给出不同计划。</p>
-<h2>目录</h2>
-<ul>
-<li><a href="#%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E7%BA%A6%E6%9D%9F%E7%9A%84%E6%98%AF%E8%BF%9E%E7%BB%AD%E7%B4%A2%E5%BC%95%E5%89%8D%E7%BC%80">最左前缀约束的是连续索引前缀</a></li>
-<li><a href="#%E5%AE%9E%E9%AA%8C%E8%A1%A8%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%88%86%E5%B8%83">实验表与数据分布</a></li>
-<li><a href="#%E7%BC%BA%E5%B0%91%E5%89%8D%E5%AF%BC%E5%88%97%E8%83%BD%E6%89%AB%E6%8F%8F%E7%B4%A2%E5%BC%95%E4%B8%8D%E8%83%BD%E7%9B%B4%E6%8E%A5%E5%AE%9A%E4%BD%8D">缺少前导列：能扫描索引，不能直接定位</a></li>
-<li><a href="#%E8%8C%83%E5%9B%B4%E5%88%97%E4%B9%8B%E5%90%8E%E7%9A%84%E5%88%97%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E9%80%80%E5%8C%96">范围列之后的列为什么会退化</a></li>
-<li><a href="#order-by-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E8%83%BD%E5%88%A9%E7%94%A8%E7%B4%A2%E5%BC%95%E9%A1%BA%E5%BA%8F">ORDER BY 什么时候能利用索引顺序</a></li>
-<li><a href="#in-%E6%98%AF%E5%A4%9A%E6%AE%B5%E8%8C%83%E5%9B%B4%E4%B8%8D%E4%BF%9D%E8%AF%81%E5%85%A8%E5%B1%80%E6%9C%89%E5%BA%8F">IN 是多段范围，不保证全局有序</a></li>
-<li><a href="#%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%E5%9B%9E%E8%A1%A8%E5%92%8C-key_len">覆盖索引、回表和 key_len</a></li>
-<li><a href="#%E8%AE%BE%E8%AE%A1%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E6%97%B6%E7%9A%84%E6%A3%80%E6%9F%A5%E6%96%B9%E6%B3%95">设计联合索引时的检查方法</a></li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
-</ul>
-<h2>最左前缀约束的是连续索引前缀</h2>
-<p>最左前缀原则约束的是联合索引的连续使用方式。索引按 <code>(user_id, event_type, created_at)</code> 的顺序排列，可用于定位的完整前缀从第一列开始：<code>(user_id)</code>、<code>(user_id, event_type)</code>、<code>(user_id, event_type, created_at)</code>。它没有说缺少第一列时索引绝对不可用，也没有说只要列出现在 <code>WHERE</code> 中就能直接 seek。</p>
-<p>这次实测出现了三个容易混淆的结果：只查 <code>event_type</code> 时仍然扫描了整棵联合索引；<code>event_type</code> 使用范围后，<code>created_at</code> 不再作为索引范围边界；等值条件覆盖前两列时，<code>ORDER BY created_at</code> 不再需要额外排序，而 <code>IN</code> 两个取值时又出现了 <code>Using filesort</code>。</p>
-<figure><img src="/images/backend/mysql-leftmost-prefix/01-leftmost-match.svg" alt="联合索引最左匹配示意" tabindex="0" loading="lazy"><figcaption>联合索引最左匹配示意</figcaption></figure>
-<h2>实验表与数据分布</h2>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">CREATE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TABLE</span><span style="--shiki-light:#4078F2;--shiki-dark:#61AFEF"> user_events</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  id </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">BIGINT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> UNSIGNED </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> AUTO_INCREMENT,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  user_id </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">BIGINT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  event_type </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VARCHAR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">32</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  created_at </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">DATETIME</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  payload </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VARCHAR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">200</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  PRIMARY KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (id),</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">  KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> idx_user_event_time (user_id, event_type, created_at)</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) ENGINE </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> InnoDB;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>人工数据包含 2000 个用户、8 种事件类型和 90 天时间范围，<code>SELECT COUNT(*)</code> 返回 100000。脚本执行了 <code>ANALYZE TABLE</code>，下面所有计划都来自修正造数样本后的同一轮输出。</p>
-<p>第一轮脚本曾用 <code>user_id = 42 AND event_type = 'purchase'</code> 验证，因组合内没有这个样本而返回 0 行。后来将等值演示改为该用户实际存在的 <code>click</code>，重新执行 <code>EXPLAIN</code> 和 <code>EXPLAIN ANALYZE</code>，避免用空结果解释排序。</p>
-<h2>缺少前导列：能扫描索引，不能直接定位</h2>
-<p>查询只给出联合索引的第二列：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">EXPLAIN</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id, user_id, event_type, created_at</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> user_events</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> event_type </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379"> 'purchase'</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>关键输出：</p>
-<p>| type | key | key_len | rows | Extra |<br>
-|</p>
-]]></content:encoded>
-      <enclosure url="https://yxinlong57-spec.github.io/vuepress-blog/images/backend/mysql-leftmost-prefix/01-leftmost-match.svg" type="image/svg+xml"/>
-    </item>
-    <item>
-      <title>MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-readview-rr-rc.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-readview-rr-rc.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MySQL 可重复读到底重复在哪？RR 和 RC 的 ReadView 时机实测</source>
-      <description>RR 和 RC 的 ReadView 生成时机实测：MySQL 可重复读到底「重复」在哪。</description>
-      <category>MySQL</category>
-      <pubDate>Fri, 09 Oct 2026 00:00:00 GMT</pubDate>
-      <content:encoded><![CDATA[<blockquote>
-<p>实验环境：Windows 11、MySQL Community Server 8.0.45、InnoDB，默认隔离级别为 <code>REPEATABLE-READ</code>。以下 SQL、时间戳和输出来自本机两个并发会话的实测，版本和数据分布发生变化时应重新验证。</p>
-</blockquote>
-<h2>目录</h2>
-<ul>
-<li><a href="#%E5%85%88%E6%8A%8A%E7%BB%93%E8%AE%BA%E8%AF%B4%E6%B8%85%E6%A5%9A">先把结论说清楚</a></li>
-<li><a href="#%E5%AE%9E%E9%AA%8C%E8%A1%A8%E5%92%8C%E4%B8%A4%E4%B8%AA%E4%BC%9A%E8%AF%9D%E8%AF%AD%E4%B9%89">实验表和两个会话语义</a></li>
-<li><a href="#rr%E7%AC%AC%E4%B8%80%E6%AC%A1%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB%E5%BB%BA%E7%AB%8B%E5%BF%AB%E7%85%A7">RR：第一次一致性读建立快照</a></li>
-<li><a href="#rc%E6%AF%8F%E6%AC%A1%E4%B8%80%E8%87%B4%E6%80%A7%E8%AF%BB%E9%87%8D%E6%96%B0%E5%BB%BA%E7%AB%8B%E5%BF%AB%E7%85%A7">RC：每次一致性读重新建立快照</a></li>
-<li><a href="#%E8%BE%B9%E7%95%8Cstart-transaction-%E4%B8%8D%E7%AD%89%E4%BA%8E%E7%AB%8B%E5%88%BB%E7%94%9F%E6%88%90-readview">边界：START TRANSACTION 不等于立刻生成 ReadView</a></li>
-<li><a href="#readview-%E5%9C%A8%E6%BA%90%E7%A0%81%E9%87%8C%E5%81%9A%E4%BB%80%E4%B9%88">ReadView 在源码里做什么</a></li>
-<li><a href="#%E5%BD%93%E5%89%8D%E8%AF%BB%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E9%81%B5%E5%BE%AA%E8%BF%99%E5%A5%97%E5%BF%AB%E7%85%A7">当前读为什么不遵循这套快照</a></li>
-<li><a href="#%E5%A4%8D%E7%8E%B0%E5%AE%9E%E9%AA%8C%E6%97%B6%E8%A6%81%E6%B3%A8%E6%84%8F%E4%BB%80%E4%B9%88">复现实验时要注意什么</a></li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
-</ul>
-<h2>先把结论说清楚</h2>
-<p>RR 的“可重复读”指的是：同一个事务里的普通 <code>SELECT</code> 使用同一个 ReadView。这个视图通常在该事务第一次一致性读时建立，后续普通 <code>SELECT</code> 复用它，所以其他事务在第一次读之后提交的新值仍然不可见。RC 则不同，每次普通 <code>SELECT</code> 都会重新建立读取视图，因此下一次读取可能看到其他事务已经提交的新版本。</p>
-<p>这里有两个容易答错的边界：<code>START TRANSACTION</code> 本身不能简单理解成已经固定了整张表的快照；<code>SELECT ... FOR UPDATE</code>、<code>UPDATE</code>、<code>DELETE</code> 等当前读也不沿用普通一致性读的 ReadView。本文用三个双会话实验把时点和行为分别证实。</p>
-<h2>实验表和两个会话语义</h2>
-<p>实验表是一行两列的简化账户表，余额初始为 100：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">CREATE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TABLE</span><span style="--shiki-light:#4078F2;--shiki-dark:#61AFEF"> accounts</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  id </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">INT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> PRIMARY KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  owner_name </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VARCHAR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">32</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  balance </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">INT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) ENGINE </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> InnoDB;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">INSERT INTO</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts (id, owner_name, balance)</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VALUES</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">'alice'</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">100</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">), (</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">2</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">'bob'</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">1000</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> @@</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">version</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> mysql_version,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       @@transaction_isolation </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> global_isolation;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>本机初始输出：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>mysql_version | global_isolation</span></span>
-<span class="line"><span>8.0.45        | REPEATABLE-READ</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><p>会话 A 负责在同一事务内读取两次，会话 B 在两次读取之间执行并提交更新。为了让时序可观察，A 在第一次读后执行 <code>DO SLEEP(5)</code>，B 在客户端中按顺序执行。两个会话必须连接同一个 MySQL 实例和同一个数据库，不能用两个互不相关的临时快照来观察。</p>
-<h2>RR：第一次一致性读建立快照</h2>
-<p>会话 A 的步骤如下：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> REPEATABLE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'A1 RR first snapshot read'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">DO SLEEP(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">5</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'A2 RR second snapshot read after B commit'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>会话 B 在 A 第一次读之后执行：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> REPEATABLE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> balance </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 200</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'B committed 100 -> 200'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>关键输出如下：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>2026-10-08 21:37:46.842411 | A1 RR first snapshot read | 100</span></span>
-<span class="line"><span>2026-10-08 21:37:48.576944 | B committed 100 -> 200 | 200</span></span>
-<span class="line"><span>2026-10-08 21:37:51.859264 | A2 RR second snapshot read after B commit | 100</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>A 的第二次普通 <code>SELECT</code> 发生在 B 提交之后，但结果仍然是 100。原因是 A 第一次一致性读已经建立了 ReadView，B 的新事务编号不在这个视图的可见集合里。这里看到的是旧版本，而不是读取失败，也不是 <code>SELECT</code> 被锁住等待。</p>
-<h2>RC：每次一致性读重新建立快照</h2>
-<p>为了单独观察 RC，先把余额重置为 100，再让 A 使用 <code>READ COMMITTED</code>：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> balance </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 100</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> COMMITTED</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">), balance </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">DO SLEEP(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">5</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">), balance </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>会话 B 在两次读之间提交 <code>100 -&gt; 300</code>：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>2026-10-08 21:37:59.034199 | A1 RC first snapshot read | 100</span></span>
-<span class="line"><span>2026-10-08 21:38:00.735284 | B committed 100 -> 300 | 300</span></span>
-<span class="line"><span>2026-10-08 21:38:04.049592 | A2 RC second snapshot read after B commit | 300</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这一次 A2 读到了 300。RC 不会把事务开始时或第一次读取时的可见性集合一直沿用下去，每次一致性读都会重新判断哪些事务已经提交。因此，同一个事务中的两次相同查询可能返回不同结果。</p>
-<p>RC 与 RR 的差异不是“RC 每次读取都会加锁”，而是“每次一致性读的可见性边界不同”。普通 <code>SELECT</code> 在这种场景下仍然是非锁定读。</p>
-<h2>边界：START TRANSACTION 不等于立刻生成 ReadView</h2>
-<p>把第一次表读取延后，可以看出“事务开始”和“第一次一致性读”不是同一个时点。会话 A 只执行：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> REPEATABLE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> started_at;</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">DO SLEEP(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">5</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> first_read_at, balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>会话 B 在 A 第一次读取 <code>accounts</code> 之前提交：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> REPEATABLE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> balance </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 400</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>实测输出：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>2026-10-08 21:38:16.284075 | A1 transaction started, no table read yet</span></span>
-<span class="line"><span>2026-10-08 21:38:18.030266 | B committed 100 -> 400 before A first read</span></span>
-<span class="line"><span>2026-10-08 21:38:21.295614 | A2 first snapshot read after B commit | 400</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>A 的 <code>START TRANSACTION</code> 先发生，但 A 的第一次 <code>accounts</code> 一致性读发生在 B 提交之后，所以它看到 400。这个结果说明：在本次普通一致读路径上，ReadView 是在需要一致性读时创建的。</p>
-<p>如果业务明确要求在事务开始时获取一致快照，可以使用：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> WITH</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> CONSISTENT </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SNAPSHOT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p>但不要只依赖语法名称。事务内是否出现当前读、写入、DDL 或其他特殊操作，都会改变实际行为，最终仍要结合版本和 SQL 路径验证。</p>
-<h2>ReadView 在源码里做什么</h2>
-<p>MySQL 8.0.45 的 <code>trx_assign_read_view()</code> 源码注释写得很直接：同一个事务内的所有一致性读获得同一个 ReadView，而这个 ReadView 在该函数第一次被调用时创建。<code>ReadView::prepare()</code> 记录当前活跃读写事务 ID、事务号的上限边界和创建者事务 ID；后续读取 undo 版本时，用这些信息判断某个事务的修改是否对当前视图可见。</p>
-<p><code>changes_visible()</code> 里还有一个很有用的边界：创建者事务 ID 会直接被视为可见。换句话说，事务能看到自己的修改；RR 的“重复读”约束的是其他已提交事务的新版本，不是把自己的 <code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code> 结果隐藏掉。</p>
-<p>可以把判断过程压缩成三步：</p>
-<ol>
-<li>第一次普通 <code>SELECT</code> 为事务建立 ReadView。</li>
-<li>后续普通 <code>SELECT</code> 复用这个视图，并沿着版本链寻找对当前视图可见的记录。</li>
-<li>创建该 ReadView 的事务自己的修改可见，活跃事务列表中的其他事务则需要按可见性规则继续判断。</li>
-</ol>
-<p>源码链接见文末。这里的重点不是背 C++ 字段名，而是理解 RR 和 RC 的差异最终落在“何时打开读取视图、后续是否复用它”上。</p>
-<h2>当前读为什么不遵循这套快照</h2>
-<p>普通 <code>SELECT</code> 是一致性非锁定读；下面这些语句通常会进入锁定读或当前读路径：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ... </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FOR</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ... </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FOR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> SHARE;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ...;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">DELETE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ...;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>它们需要在索引记录上参与锁竞争，读取时不能只拿一个可能已经固定的历史快照来返回结果。<code>SELECT ... FOR UPDATE</code> 可能等待其他事务提交或回滚；<code>UPDATE</code>、<code>DELETE</code> 还可能根据索引范围锁定更多记录。具体锁范围受索引、查询条件和隔离级别影响，不能只凭语句类型下结论。</p>
-<p>也不要把它简化成“当前读绕过 MVCC”。更准确的说法是：当前读不沿用普通一致性读的 ReadView，它会读取当前需要的结果并参与锁定；InnoDB 仍要通过版本、记录和索引结构完成读取。下一篇会用“普通 SELECT 看到旧值，而 FOR UPDATE 等待后读最新提交值”的双会话结果专门拆开这个差异。</p>
-<h2>复现实验时要注意什么</h2>
-<ol>
-<li>确认 <code>@@version</code>、<code>@@transaction_isolation</code> 和表引擎，不能只在文章结论里写“MySQL”。</li>
-<li>两个会话必须使用同一个测试库、同一张表和同一行主键，避免把不同连接的不同快照误当成隔离级别差异。</li>
-<li>RR 和 RC 分别重置数据，不要把上一轮的 200、300 或 400 带到下一轮。</li>
-<li><code>DO SLEEP(5)</code> 只用来稳定交叠时序，不是性能测试；不要根据它推断查询耗时。</li>
-<li>把 <code>SELECT NOW(6)</code> 当作观察工具，而不是业务锁；它不能替代并发测试中的提交确认。</li>
-<li>看到第二次读到旧值时，先画一条“事务开始、第一次读、其他事务更新、其他事务提交、第二次读”的时间线，再判断是哪种读取路径。</li>
-</ol>
-<p>这组实验适合用来验证基础机制。生产系统里的长事务、连接池、批量更新、二级索引和不同版本的优化器行为，还需要按真实 SQL 继续测量。</p>
-<h2>参考资料</h2>
-<ul>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: Consistent Nonlocking Reads</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: InnoDB Multi-Versioning</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: Transaction Isolation Levels</a></li>
-<li><a href="https://github.com/mysql/mysql-server/blob/mysql-8.0.45/storage/innobase/trx/trx0trx.cc" target="_blank" rel="noopener noreferrer">MySQL 8.0.45 source: trx0trx.cc</a></li>
-<li><a href="https://github.com/mysql/mysql-server/blob/mysql-8.0.45/storage/innobase/read/read0read.cc" target="_blank" rel="noopener noreferrer">MySQL 8.0.45 source: read0read.cc</a></li>
-<li><a href="https://github.com/mysql/mysql-server/blob/mysql-8.0.45/storage/innobase/include/read0types.h" target="_blank" rel="noopener noreferrer">MySQL 8.0.45 source: read0types.h</a></li>
-</ul>
-]]></content:encoded>
-    </item>
-    <item>
-      <title>MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/mysql-snapshot-vs-current-read.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">MySQL 快照读和当前读有什么区别？一次 SELECT 与 SELECT ... FOR UPDATE 的并发实测</source>
-      <description>SELECT 与 SELECT ... FOR UPDATE 并发实测：快照读和当前读的区别与加锁边界。</description>
-      <category>MySQL</category>
-      <pubDate>Fri, 09 Oct 2026 00:00:00 GMT</pubDate>
-      <content:encoded><![CDATA[<blockquote>
-<p>实验环境：Windows 11、MySQL Community Server 8.0.45、InnoDB，默认隔离级别为 <code>REPEATABLE-READ</code>。两个会话连接同一个临时实例，B 先更新但不提交，A 分别执行普通 <code>SELECT</code> 和 <code>SELECT ... FOR UPDATE</code>；输出的时间戳只是本次复现记录。</p>
-</blockquote>
-<h2>目录</h2>
-<ul>
-<li><a href="#%E5%85%88%E6%8A%8A%E4%B8%A4%E7%B1%BB%E8%AF%BB%E5%88%86%E6%B8%85">先把两类读分清</a></li>
-<li><a href="#%E5%AE%9E%E9%AA%8C%E5%87%86%E5%A4%87%E5%92%8C%E5%8F%8C%E4%BC%9A%E8%AF%9D%E6%97%B6%E9%97%B4%E7%BA%BF">实验准备和双会话时间线</a></li>
-<li><a href="#%E6%99%AE%E9%80%9A-select%E4%B8%8D%E7%AD%89%E5%BE%85%E4%B9%9F%E4%B8%8D%E7%9C%8B%E6%9C%AA%E6%8F%90%E4%BA%A4%E7%89%88%E6%9C%AC">普通 SELECT：不等待，也不看未提交版本</a></li>
-<li><a href="#for-update%E7%AD%89%E5%BE%85%E8%A1%8C%E9%94%81%E6%8F%90%E4%BA%A4%E5%90%8E%E8%AF%BB%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC">FOR UPDATE：等待行锁，提交后读最新版本</a></li>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BD%93%E5%89%8D%E8%AF%BB%E7%BB%95%E8%BF%87-mvcc%E4%B8%8D%E5%A4%9F%E5%87%86%E7%A1%AE">为什么“当前读绕过 MVCC”不够准确</a></li>
-<li><a href="#%E5%93%AA%E4%BA%9B%E8%AF%AD%E5%8F%A5%E9%9C%80%E8%A6%81%E6%8C%89%E5%BD%93%E5%89%8D%E8%AF%BB%E7%90%86%E8%A7%A3">哪些语句需要按当前读理解</a></li>
-<li><a href="#%E4%B8%9A%E5%8A%A1%E4%B8%AD%E6%80%8E%E4%B9%88%E9%80%89">业务中怎么选</a></li>
-<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
-</ul>
-<h2>先把两类读分清</h2>
-<p>普通 <code>SELECT</code> 是一致性非锁定读，遇到另一个事务尚未提交的更新时，它不加锁等待，而是按照当前事务的 ReadView 返回可见版本。<code>SELECT ... FOR UPDATE</code> 是锁定读，会参与行锁竞争；如果目标记录已经被其他事务加上写锁，它可能等待，等对方提交后再读取最新已提交版本。</p>
-<p>这两种行为的差别不只是“读旧值还是读新值”。普通读关心可见性视图，锁定读还要关心锁的获取、等待、超时和锁范围。本文将用一条账户记录观察：B 先把 100 改成 600 但不提交，A 的普通读看到什么，A 的 <code>FOR UPDATE</code> 又为什么会等待。</p>
-<h2>实验准备和双会话时间线</h2>
-<p>实验表只有一行需要观察的数据，余额初始为 100：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">CREATE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TABLE</span><span style="--shiki-light:#4078F2;--shiki-dark:#61AFEF"> accounts</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  id </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">INT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> PRIMARY KEY</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  owner_name </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VARCHAR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">32</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOT NULL</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">  balance </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">INT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOT NULL</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) ENGINE </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> InnoDB;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">INSERT INTO</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts (id, owner_name, balance)</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">VALUES</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> (</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">'alice'</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">100</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">), (</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">2</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">'bob'</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">1000</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>两个会话都使用 <code>REPEATABLE READ</code>。B 的执行顺序是：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> REPEATABLE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> balance </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 600</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'B1 uncommitted update is holding the row lock'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">DO SLEEP(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">5</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>B 在自己的事务里能看到 600，同时持有 <code>id=1</code> 这行对应的写锁：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>2026-10-08 21:38:48.150907 | B1 uncommitted update is holding the row lock | 600</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div></div></div><p>A 在 B 尚未提交时启动事务，先做两次普通读取：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> SESSION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> TRANSACTION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> ISOLATION</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> LEVEL</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> REPEATABLE</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> READ</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">START TRANSACTION</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'A1 snapshot read after B uncommitted update'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">DO SLEEP(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'A2 snapshot read while B is uncommitted'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这两次普通 <code>SELECT</code> 都返回 100。随后 A 把普通读换成锁定读：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SET</span><span style="--shiki-light:#383A42;--shiki-dark:#E06C75"> @lock_wait_started</span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2"> =</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">);</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> sample_time,</span></span>
-<span class="line"><span style="--shiki-light:#50A14F;--shiki-dark:#98C379">       'A3 locking current read while B holds the row lock'</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> step,</span></span>
-<span class="line"><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">       balance</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FROM</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> accounts</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">WHERE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> id </span><span style="--shiki-light:#383A42;--shiki-dark:#56B6C2">=</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66"> 1</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FOR</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#E06C75"> @lock_wait_started</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> lock_wait_started,</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">       NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">) </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> lock_wait_finished,</span></span>
-<span class="line"><span style="--shiki-light:#0184BC;--shiki-dark:#56B6C2">       ROUND</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(TIMESTAMPDIFF(</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">MICROSECOND</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#383A42;--shiki-dark:#E06C75">@lock_wait_started</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">NOW</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">(</span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">6</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">)) / </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">1000</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">, </span><span style="--shiki-light:#986801;--shiki-dark:#D19A66">3</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">)</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">         AS</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> lock_wait_ms;</span></span>
-<span class="line"></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">COMMIT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>完整时间线如下：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>2026-10-08 21:38:48.150907 | B1 uncommitted update is holding the row lock | 600</span></span>
-<span class="line"><span>2026-10-08 21:38:49.037438 | A1 snapshot read after B uncommitted update | 100</span></span>
-<span class="line"><span>2026-10-08 21:38:50.050450 | A2 snapshot read while B is uncommitted | 100</span></span>
-<span class="line"><span>2026-10-08 21:38:50.052020 | A3 locking read started, waiting for B</span></span>
-<span class="line"><span>2026-10-08 21:38:53.172468 | B2 committed 100 -> 600 | 600</span></span>
-<span class="line"><span>2026-10-08 21:38:53.172651 | A3 locking read finished | 600</span></span>
-<span class="line"><span>lock_wait_ms = 3120.631</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这里最值得看的不是 3.12 秒本身，而是两组语句面对同一把未提交写锁时走了不同路径：普通读直接返回当前可见版本；锁定读先停在锁等待上，等 B 提交后再返回最新版本。</p>
-<h2>普通 SELECT：不等待，也不看未提交版本</h2>
-<p>A 的两次普通读发生在 B 持有写锁期间，实际输出是：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>2026-10-08 21:38:49.037438 | A1 snapshot read after B uncommitted update | 100</span></span>
-<span class="line"><span>2026-10-08 21:38:50.050450 | A2 snapshot read while B is uncommitted | 100</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div></div></div><p>普通 <code>SELECT</code> 是一致性非锁定读，它不需要获取 <code>id=1</code> 这行的读锁，因此不会被 B 的写锁阻塞。它也没有读取 B 尚未提交的 600，而是沿着版本可见性规则返回 A 当前可以看见的版本。RR 下这两次读使用同一个一致性读取视图，结果都是 100；换成 RC 后，如果 B 已经提交，后续读取才可能看到新值。</p>
-<p>这里有两个不同的判断不能混在一起：</p>
-<ul>
-<li>“不等待”说明普通读没有和写锁发生互斥等待。</li>
-<li>“读到 100”说明未提交事务的修改不满足 A 的可见性条件。</li>
-</ul>
-<p>不等待不等于读取了 B 的修改，读到旧值也不是因为 A 的查询被锁住了。若业务要求读取当下的最新值，需要明确这条查询是否应该改成锁定读，而不是期待普通 <code>SELECT</code> 自动看到未提交结果。</p>
-<h2>FOR UPDATE：等待行锁，提交后读最新版本</h2>
-<p>A 的锁定读开始时，B 还没有提交。A 的 <code>FOR UPDATE</code> 在目标行上申请排他锁，发现锁被 B 持有后进入等待。B 提交后，A 才拿到锁并返回：</p>
-<div class="language-text line-numbers-mode" data-highlighter="shiki" data-ext="text" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-text"><span class="line"><span>A3 locking read started          | 2026-10-08 21:38:50.052020</span></span>
-<span class="line"><span>B2 committed                     | 2026-10-08 21:38:53.172468</span></span>
-<span class="line"><span>A3 locking read finished         | 2026-10-08 21:38:53.172651 | 600</span></span>
-<span class="line"><span>lock_wait_ms                     | 3120.631</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这次 A 读到 600，因为 B 已经提交，锁定读需要基于当前记录状态完成读取。与普通 <code>SELECT</code> 相比，<code>FOR UPDATE</code> 多做了两件事：在读取过程中参与锁竞争，并且不沿用此前普通一致性读已经固定的旧视图。</p>
-<p>如果 B 回滚，A 不应当把 600 当成 B 的结果；它会根据回滚后的可见状态继续完成读取。是否真的等待、等待多久、是否可能超时，取决于目标记录是否被锁住、锁的兼容性、索引条件和 <code>innodb_lock_wait_timeout</code>。</p>
-<p>本次 3120.631 ms 是 Windows 本机一次调度记录，也受 B 的 <code>DO SLEEP(5)</code> 和具体提交时刻影响。它可以证明 A 在等待锁，不能证明线上一定出现相同延迟，更不能拿来估算优化收益。</p>
-<h2>为什么“当前读绕过 MVCC”不够准确</h2>
-<p>“当前读绕过 MVCC”作为学习口诀很常见，但把它当作最终结论，会漏掉两个关键点。</p>
-<p>第一，当前读没有沿用普通一致性读的 ReadView。它不能只凭事务第一次普通 <code>SELECT</code> 时的旧快照返回，而要读取当前锁和当前记录状态，所以 B 提交后 A 能看到 600。</p>
-<p>第二，InnoDB 仍有版本、索引和记录结构；所谓“当前”不是跳过所有底层读取步骤。更准确的表达是：</p>
-<blockquote>
-<p>当前读不沿用普通一致性读的快照，会在读取时参与锁定，并基于当前已提交状态取得结果。</p>
-</blockquote>
-<p>这句话解释了为什么 <code>FOR UPDATE</code> 可能等待。如果只记“绕过 MVCC”，很容易误以为它不用等锁，或以为任何普通 <code>SELECT</code> 都能自动获取最新值。实际行为必须同时看一致性读快照和锁竞争两条线。</p>
-<h2>哪些语句需要按当前读理解</h2>
-<p>常见的锁定读和当前读路径包括：</p>
-<div class="language-sql line-numbers-mode" data-highlighter="shiki" data-ext="sql" style="--shiki-light:#383A42;--shiki-dark:#abb2bf;--shiki-light-bg:#FAFAFA;--shiki-dark-bg:#282c34"><pre class="shiki shiki-themes one-light one-dark-pro vp-code"><code class="language-sql"><span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ... </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FOR</span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD"> UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF">;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">SELECT</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ... </span><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">FOR</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> SHARE;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">UPDATE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ...;</span></span>
-<span class="line"><span style="--shiki-light:#A626A4;--shiki-dark:#C678DD">DELETE</span><span style="--shiki-light:#383A42;--shiki-dark:#ABB2BF"> ...;</span></span></code></pre>
-<div class="line-numbers" aria-hidden="true" style="counter-reset:line-number 0"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>这些语句都可能在索引记录上获取锁，<code>UPDATE</code> 和 <code>DELETE</code> 还可能因为索引范围或缺少合适索引锁定更多记录。<code>INSERT</code> 在唯一性检查和写行时也有自己的锁与读取路径，不能简单把它归为“读快照”或“直接绕过锁”。</p>
-<p>判断锁问题时，至少保存这些上下文：</p>
-<ol>
-<li>完整 SQL，不要只保留 <code>WHERE id = 1</code> 这样的片段。</li>
-<li>表结构、索引和实际执行计划。</li>
-<li>每个事务的开始、更新、提交和回滚时间。</li>
-<li>锁等待输出、等待时间和 <code>innodb_lock_wait_timeout</code>。</li>
-<li>隔离级别与 MySQL 版本，因为不同版本的锁实现和优化器路径可能变化。</li>
-</ol>
-<p>主键等值的单行实验适合建立基本概念，但不能直接外推到范围查询。范围条件可能涉及间隙锁、临键锁和扫描过程中遇到的记录，锁范围问题需要单独复现。</p>
-<h2>业务中怎么选</h2>
-<p>只需要在事务内读取稳定版本时，普通 <code>SELECT</code> 通常更合适，因为它不等待目标行的写锁。只有读取后还要基于当前版本继续计算、校验并写入时，才需要评估 <code>FOR UPDATE</code>，并尽量把锁持有时间缩短。</p>
-<p>如果只想读取最新已提交值，又不想和写事务发生长时间锁等待，可以考虑调整隔离级别、使用版本号、重新查询或业务重试，而不是习惯性给所有查询加上 <code>FOR UPDATE</code>。如果只想防止他人同时修改，现代业务也可以通过条件更新、唯一约束和状态机减少长事务锁的依赖。</p>
-<p>实测给出的方向很清楚：普通读解决“可见版本”问题，锁定读解决“读取并占用当前记录”问题。两者不是简单的快慢选项，选择时要先明确事务需要普通快照，还是需要参与锁竞争。</p>
-<h2>参考资料</h2>
-<ul>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: Consistent Nonlocking Reads</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: Locking Reads</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: Transaction Isolation Levels</a></li>
-<li><a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html" target="_blank" rel="noopener noreferrer">MySQL 8.0 Reference Manual: InnoDB Locking</a></li>
-<li><a href="https://github.com/mysql/mysql-server/blob/mysql-8.0.45/storage/innobase/trx/trx0trx.cc" target="_blank" rel="noopener noreferrer">MySQL 8.0.45 source: trx0trx.cc</a></li>
-</ul>
-]]></content:encoded>
-    </item>
-    <item>
-      <title>为什么 NoSQL 查询更快？答案不在数据库名字里</title>
-      <link>https://yxinlong57-spec.github.io/vuepress-blog/backend/nosql-why-faster.html</link>
-      <guid>https://yxinlong57-spec.github.io/vuepress-blog/backend/nosql-why-faster.html</guid>
-      <source url="https://yxinlong57-spec.github.io/vuepress-blog/rss.xml">为什么 NoSQL 查询更快？答案不在数据库名字里</source>
-      <description>NoSQL 查询更快？答案不在名字里：内存存储、数据结构和避免 JOIN 的工程取舍。</description>
-      <category>存储与 IO</category>
-      <pubDate>Sat, 03 Oct 2026 00:00:00 GMT</pubDate>
-      <content:encoded><![CDATA[<h2>快速认识</h2>
-<p>“NoSQL 查询更快”这句话只说对了一半。同一个查询，换一种数据模型和访问路径，命中主键可能比多表连接快很多；但如果要做复杂关联、强事务和全局聚合，关系型数据库也经常反超。</p>
-<p>NoSQL 看上去更快，常见原因是它把数据放在更接近查询结果的位置：按主键或分片键直接定位、整份文档一次读出、数据常驻内存、请求分散到多个节点，或者通过弱化事务和一致性减少协调成本。</p>
-<h3>一句话结论</h3>
-<p>NoSQL 的速度不是来自“非关系型”四个字，而是来自数据模型、索引、存储路径、部署方式和一致性取舍与具体查询的匹配程度。</p>
-<h3>先记住这几点</h3>
-<ul>
-<li><strong>按主键和分片键查询</strong>通常接近一次定位，不需要扫描多张表。</li>
-<li><strong>文档嵌套和反范式化</strong>可以把一次页面渲染需要的数据放在同一份记录里，减少连接和网络往返。</li>
-<li><strong>内存优先和多节点扩展</strong>能提高吞吐，但内存成本、复制延迟和热点分区仍然存在。</li>
-<li><strong>弱事务或最终一致性</strong>减少了跨节点协调，代价是业务必须处理中间状态、重试和冲突。</li>
-<li><strong>复杂查询、多表关联、强事务和聚合分析</strong>可能更适合关系型数据库，索引和执行计划成熟度往往更高。</li>
-</ul>
-<p>如果你只想得到一个结论：不要问“哪种数据库更快”，要问“这条查询能否利用它的数据模型和索引，只需要访问多少数据，是否必须等待多个节点达成一致”。下面继续拆每条查询路径。</p>
-<h2>拓展</h2>
-<h3>1. “快”到底指什么</h3>
-<p>数据库性能至少可以分成四类指标：</p>
-<p>| 指标 | 含义 | 常见影响因素 |<br>
 |</p>
 ]]></content:encoded>
     </item>
