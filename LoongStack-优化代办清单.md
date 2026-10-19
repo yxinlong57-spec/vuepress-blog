@@ -68,14 +68,14 @@
 
 > 目标：站外的人能搜到、订阅到、追踪到。
 
-- [ ] **RSS 订阅**：`plugins.feed` 输出 Atom/RSS，页脚加入口（bugstack 有 RSS）
-- [ ] **访问统计**：接入百度统计（国内访问优先），能看 PV/UV/来源
-- [ ] **SEO 深化**：确认 sitemap 已提交 Google Search Console / 百度站长；文章 `description` 全面覆盖（P0 已启动）
-- [ ] **「面试必备」资源化**（对标 bugstack 面试板块）：
-  - [ ] 面经八股测验页（100 道题自测，可先从 20 道起步）
-  - [ ] 简历模板资源页（整合已有的 4 篇简历文章 + 给出可下载模板）
-- [ ] **首页「星标文章」**：用 frontmatter `star: true` 把 HashMap、锁升级、RAG 等拳头文章置顶到时间线/博客首页
-- [ ] **友链页面**：`/friends/`，附交换规则（为 v2.0 生态扩展铺垫）
+- [x] **RSS 订阅**：`plugins.feed` 已输出 /rss.xml、/atom.xml、/feed.json（20 条），首页联系我板块有入口，阅读器可直接订阅
+- [~] **访问统计**：需用户先注册[百度统计](https://tongji.baidu.com/)拿到 `hm.js` 站点 ID，发我后 5 分钟配好（plugin-baidu-analytics）
+- [~] **SEO 深化**：sitemap.xml 已修复（hostname 补 base + robots 覆写上游 bug）并验证可访问；description 全覆盖（P0 完成）——**剩用户操作**：把 `https://yxinlong57-spec.github.io/vuepress-blog/sitemap.xml` 提交到 Google Search Console 与百度站长平台（需各自账号）
+- [x] **「面试必备」资源化**（对标 bugstack 面试板块）：
+  - [x] 面经八股自测 20 题（`/interview/quiz.html`，折叠答案 + 错题回链专栏，可持续扩到 100 题）
+  - [x] 简历资源包（`/interview/resume.html`：4 篇系列文导航 + 简历结构模板 + 投递前自查清单）
+- [x] **首页「星标文章」**：HashMap/线程池/锁升级/Agent 循环/最左前缀 5 篇已加 `star: true`
+- [x] **友链页面**：`/friends.html`（本站信息 + 交换规则 + 三个申请渠道），首页与侧栏已挂入口
 
 ***
 

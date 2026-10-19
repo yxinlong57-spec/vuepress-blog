@@ -61,12 +61,14 @@
 
 **目标**：可发现性（SEO/统计/订阅）达到正式站水平。
 
-- [ ] SEO：每篇文章补 `description` 前言摘要、关键字段，开启 sitemap 检查
-- [ ] 接入统计：百度统计或 Google Analytics（二选一，国内访问优先百度）
-- [ ] RSS 订阅（theme-hope `plugins.feed`）
-- [ ] 站内搜索体验确认（当前 search 插件）或升级为全文索引方案
-- [ ] 404 页面定制
-- [ ] 文章「系列导航」：专栏内上一篇/下一篇 + 返回专栏目录
+- [x] SEO：每篇文章补 `description` 前言摘要（P0 完成）；sitemap.xml 修复并验证（hostname 含 base，robots 用 onGenerated 覆写）
+- [~] 接入统计：百度统计——待用户注册拿站点 ID 后配置
+- [x] RSS 订阅（theme-hope `plugins.feed`：rss.xml / atom.xml / feed.json）
+- [x] 站内搜索体验确认——发现并修复 slimsearch 插件未安装导致搜索从未生效的问题
+- [x] 404 页面定制（默认页确认可用，P1 完成）
+- [x] 文章「系列导航」：专栏内上一篇/下一篇 + 返回专栏目录（P1 验证完成）
+- [x] 面试资源化：八股自测 20 题 + 简历资源包（2026-10-19 提前完成）
+- [~] sitemap 提交 Google Search Console / 百度站长（用户账号操作，地址见代办清单）
 
 **验收标准**：Google/百度可收录，能看访客数据，有 RSS 输出。
 
