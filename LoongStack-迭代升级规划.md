@@ -44,13 +44,14 @@
 
 **目标**：补齐 bugstack 式的阅读体验细节。
 
-- [ ] 接入 Giscus 评论（需在仓库 Settings → General → Discussions 开启，装 [giscus app](https://github.com/apps/giscus)，再把仓库参数填进主题配置）
-- [ ] 开启代码块一键复制（theme-hope `plugins.copyCode`）
-- [ ] 开启文章字数统计 / 阅读时长（theme-hope `plugins.markdownPower`）
-- [ ] 图片灯箱（photoSwipe，theme-hope 内置）
-- [ ] 统一图片存放规范：`docs/.vuepress/public/images/<专栏名>/`，控制单图 < 300KB
-- [ ] 深色模式样式走查（代码块、图片、表格）
-- [ ] 移动端适配走查（首页板块、导航折叠）
+- [x] 接入 Giscus 评论（Discussions 已开 + 配置完成，剩用户安装 [giscus app](https://github.com/apps/giscus) 一步）
+- [x] 开启代码块一键复制（theme-hope `plugins.copyCode`）
+- [x] 开启文章字数统计 / 阅读时长（theme-hope `plugins.readingTime`）
+- [x] 图片灯箱（photoSwipe，theme-hope 内置）
+- [x] 统一图片存放规范：`docs/.vuepress/public/images/<专栏名>/`，控制单图 < 300KB（已写入文章模板.md）
+- [x] 深色模式样式走查（代码块、图片、表格——无阻断性问题）
+- [~] 移动端适配走查（环境无法模拟视口，响应式 CSS 已验证，待真机自检）
+- [x] 高频文章配图（4 张手绘 SVG 流程图）+ 回到顶部按钮 + 站内搜索 + Git 信息（随 P0/P1 提前完成）
 
 **验收标准**：评论可用、所有代码块可复制、手机端浏览无错位。
 
